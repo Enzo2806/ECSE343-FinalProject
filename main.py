@@ -14,11 +14,13 @@ import numpy as np  # all of numpy...
 
 del sys.modules["numpy"].fft  # ... except FFT helpers
 
-# [TODO: Deliverable 1] A generalized discrete Fourier transform
-# inSignal - 1D (sampled) input signal numpy array
-# s - sign parameter with default value -1 for the DFT vs. iDFT setting
-# returns the DFT of the input signal
+
 def DFT(inSignal, s: int = -1):
+    """
+    :param inSignal: 1D (sampled) input signal numpy array
+    :param s: sign parameter with default value -1 for the DFT vs. iDFT setting
+    :return: returns the DFT of the input signal
+    """
     y = np.zeros(inSignal.shape, dtype=complex)
     ### BEGIN SOLUTION
     # Solution is based on the given formula in the assignment instructions.
@@ -40,10 +42,11 @@ def DFT(inSignal, s: int = -1):
     return y
 
 
-# [TODO: Deliverable 2] The inverse DFT, relying on your generalized DFT routine above
-# inSignal - complex-valued (sampled) 1D DFT input numpy array
-# returns the iDFT of the input signal
 def iDFT(inSignal: complex):
+    """
+    :param inSignal: complex-valued (sampled) 1D DFT input numpy array.
+    :return: returns the iDFT of the input signal.
+    """
     N = inSignal.shape[0]  # N is the length of the input
     # The iDFT is the inverse discrete fourier transform
     # and it's just the DFT of the same signal, with a change of sign for s
@@ -52,11 +55,12 @@ def iDFT(inSignal: complex):
     return 1 / N * DFT(inSignal, 1)
 
 
-# [TODO: Deliverable 3] A generalized 2D discrete Fourier transform routine
-# inSignal2D - 2D (sampled) input signal numpy array
-# s - sign parameter with default value -1 for the DFT vs. iDFT setting
-# returns the 2D DFT of the input signal
 def DFT2D(inSignal2D, s: int = -1):
+    """
+    :param inSignal2D: complex-valued (sampled) 2D DFT input array.
+    :param s: sign parameter with default value -1 for the DFT vs. iDFT setting.
+    :return: the generated DFT2D given the input signal.
+    """
     y = np.zeros(inSignal2D.shape, dtype=complex)
     ### BEGIN SOLUTION
     # This solution is based ont he given formula in the assignment instructions
@@ -78,10 +82,11 @@ def DFT2D(inSignal2D, s: int = -1):
     return y
 
 
-# [TODO: Deliverable 4] The inverse 2D DFT, relying on your 2D DFT routine
-# inSignal2D - complex-valued (sampled) 2D DFT input array
-# returns the 2D iDFT of the input signal
 def iDFT2D(inSignal2D: complex):
+    """
+    :param inSignal2D: complex-valued (sampled) 2D DFT input array.
+    :return: the generated iDFT2D given the input signal.
+    """
     N = inSignal2D.shape[0]  # N is the length of the input
     # The iDFT2D is the 2D inverse discrete fourier transform
     # and it's just the 2D DFT of the same signal, with a change of sign for s
@@ -89,6 +94,26 @@ def iDFT2D(inSignal2D: complex):
     # This method avoids code duplication
     return (1 / N ** 2) * DFT2D(inSignal2D, 1)
 
+
+def CTFFT(inSignal, s: int = 1):
+    """
+    Function generating the
+    :param inSignal: 1D (sampled) input signal numpy array
+    :param s: sign parameter with default value -1 for the DFT vs. iDFT setting
+    :return: returns the DFT of the input signal
+    """
+    result = np.zeros(inSignal.shape, dtype=complex)
+
+    N = inSignal.shape[0]
+    # I = np.identity(N / 2)
+    e = np.full(N, np.cos(-2 * np.pi / N) + 1j * np.sin(-2 * np.pi / N)) ** np.arange(N)
+    print(e)
+    e_a, e_b = np.split(e, 2)
+    print(e_a)
+    print(e_b)
+    return result
+
+
 if __name__ == "__main__":
-    print("Test main.py")
-    print("Salut Thomas")
+    testVector = np.random.rand(4)
+    CTFFT(testVector)
