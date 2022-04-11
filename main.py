@@ -92,3 +92,4 @@ def iDFT2D(inSignal2D: complex):
 if __name__ == "__main__":
     print("Test main.py")
     print("test Thomas")
+    print("Salut Thomas")
