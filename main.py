@@ -145,10 +145,15 @@ if __name__ == "__main__":
 
     #TODO: BENCHMARKSS
     # for N in range (2 ** 45):
-    signal = np.random.rand(2**32)
+    signal = np.random.rand(2**14)
     start_time = timeit.default_timer()
     FFT_CT(signal)
     print("Time taken:")
     print(timeit.default_timer() - start_time)
-
+    start_time = timeit.default_timer()
+    np.fft.fft(signal)
+    print(timeit.default_timer() - start_time)
+    start_time = timeit.default_timer()
+    DFT(signal)
+    print(timeit.default_timer() - start_time)
 
