@@ -95,7 +95,7 @@ def iDFT2D(inSignal2D: complex):
 
 def FFT_CT(inSignal, s: int = -1):
     """
-    Function generating the
+    Function generating the FFT of the given signal using the Cooley-Tukey ALgorithm
     :param inSignal: 1D (sampled) input signal numpy array
     :param s: sign parameter with default value -1 for the DFT vs. iDFT setting
     :return: returns the DFT of the input signal
@@ -103,6 +103,9 @@ def FFT_CT(inSignal, s: int = -1):
     result = np.zeros(inSignal.shape, dtype=complex)
 
     N = inSignal.shape[0]
+
+    if N == 0:
+        raise ValueError("Invalid signal: length 0")
 
     if N == 1:
         result = inSignal
@@ -113,12 +116,34 @@ def FFT_CT(inSignal, s: int = -1):
         inSignal_e_hat = FFT_CT(inSignal[::2])
         inSignal_o_hat = FFT_CT(inSignal[1::2])
 
-        result[0 : int(N / 2)] = inSignal_e_hat + diag_e_a @ inSignal_o_hat
-        result[int(N / 2) : N] = inSignal_e_hat - diag_e_a @ inSignal_o_hat
+        result[0: int(N / 2)] = inSignal_e_hat + diag_e_a @ inSignal_o_hat
+        result[int(N / 2): N] = inSignal_e_hat - diag_e_a @ inSignal_o_hat
 
     return result
 
 
 if __name__ == "__main__":
-    testVector = np.random.rand(1024)
-    print(np.allclose(np.fft.fft(testVector), FFT_CT(testVector)))
+    # Test the FFT_CT function
+    print("FIRST TEST")
+    print("__________________________")
+    print("Description: Calls the FFT_CT function with a signal of length 0.")
+    print("Expected Output: SHould throw the following Exception: \"Invalid signal: length 0\" ")
+    print("Output:")
+    try:
+        testVector = np.random.rand(0)
+        FFT_CT(testVector)
+    except Exception as e:
+        print(e)
+
+    print("SECOND TEST")
+    print("__________________________")
+    print("Description: ")
+    print("Expected Output: SHould throw the following Exception: \"Invalid signal: length 0\" ")
+    print("Output:")
+
+    #TODO: Implement a shit ton of other tests here.
+
+    #TODO: BENCHMARKSS
+
+
+
