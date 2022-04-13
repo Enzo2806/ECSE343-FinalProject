@@ -11,7 +11,7 @@ Enzo Benoit-Jeannin
 import sys
 import matplotlib.pyplot as plt  # plotting
 import numpy as np  # all of numpy...
-import time
+import timeit
 
 def DFT(inSignal, s: int = -1):
     """
@@ -144,6 +144,11 @@ if __name__ == "__main__":
     #TODO: Implement a shit ton of other tests here.
 
     #TODO: BENCHMARKSS
-
+    # for N in range (2 ** 45):
+    signal = np.random.rand(2**32)
+    start_time = timeit.default_timer()
+    FFT_CT(signal)
+    print("Time taken:")
+    print(timeit.default_timer() - start_time)
 
 
