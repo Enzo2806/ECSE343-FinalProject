@@ -11,9 +11,7 @@ Enzo Benoit-Jeannin
 import sys
 import matplotlib.pyplot as plt  # plotting
 import numpy as np  # all of numpy...
-
-del sys.modules["numpy"].fft  # ... except FFT helpers
-
+import time
 
 def DFT(inSignal, s: int = -1):
     """
@@ -95,7 +93,7 @@ def iDFT2D(inSignal2D: complex):
     return (1 / N ** 2) * DFT2D(inSignal2D, 1)
 
 
-def CTFFT(inSignal, s: int = 1):
+def FFT_CT(inSignal, s: int = -1):
     """
     Function generating the
     :param inSignal: 1D (sampled) input signal numpy array
@@ -105,15 +103,22 @@ def CTFFT(inSignal, s: int = 1):
     result = np.zeros(inSignal.shape, dtype=complex)
 
     N = inSignal.shape[0]
-    # I = np.identity(N / 2)
-    e = np.full(N, np.cos(-2 * np.pi / N) + 1j * np.sin(-2 * np.pi / N)) ** np.arange(N)
-    print(e)
-    e_a, e_b = np.split(e, 2)
-    print(e_a)
-    print(e_b)
+
+    if N == 1:
+        result = inSignal
+    else:
+        w = np.exp(complex(0, s * 2 * np.pi / N))
+        diag_e_a = np.diag(np.full(int(N / 2), w) ** np.arange(N / 2))
+
+        inSignal_e_hat = FFT_CT(inSignal[::2])
+        inSignal_o_hat = FFT_CT(inSignal[1::2])
+
+        result[0 : int(N / 2)] = inSignal_e_hat + diag_e_a @ inSignal_o_hat
+        result[int(N / 2) : N] = inSignal_e_hat - diag_e_a @ inSignal_o_hat
+
     return result
 
 
 if __name__ == "__main__":
-    testVector = np.random.rand(4)
-    CTFFT(testVector)
+    testVector = np.random.rand(1024)
+    print(np.allclose(np.fft.fft(testVector), FFT_CT(testVector)))
