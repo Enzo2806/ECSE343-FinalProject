@@ -157,3 +157,30 @@ if __name__ == "__main__":
     DFT(signal)
     print(timeit.default_timer() - start_time)
 
+    bench_CT_result = {}
+    bench_oldDFT_result = {}
+
+    for N in (2 ** p for p in range(1, 12)):
+        signal = np.random.rand(N)
+        start_time = timeit.default_timer()
+        FFT_CT(signal)
+        bench_CT_result[N] = timeit.default_timer()-start_time
+
+        start_time = timeit.default_timer()
+        DFT(signal)
+        bench_oldDFT_result[N] = timeit.default_timer()-start_time
+
+    lists = sorted(bench_CT_result.items())  # sorted by key, return a list of tuples
+    N, CT_time = zip(*lists)  # unpack a list of pairs into two tuples
+    plt.plot(N, CT_time)
+
+    lists = sorted(bench_oldDFT_result.items())  # sorted by key, return a list of tuples
+    N, oldDFT_time = zip(*lists)  # unpack a list of pairs into two tuples
+    plt.plot(N, oldDFT_time)
+
+    plt.show()
+
+
+
+
+
