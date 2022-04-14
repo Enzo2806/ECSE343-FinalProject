@@ -138,12 +138,16 @@ if __name__ == "__main__":
     print("SECOND TEST")
     print("__________________________")
     print("Description: ")
-    print("Expected Output: SHould throw the following Exception: \"Invalid signal: length 0\" ")
+    print("Expected Output: Should throw the following Exception: \"Invalid signal: length 0\" ")
     print("Output:")
 
     #TODO: Implement a shit ton of other tests here.
 
-    #TODO: BENCHMARKSS
+    # VALIDATION TESTS, should be performed on a wide range of values
+    #TODO: Test FFT against our DFT , returns a boolean, TRUE if result is same, FALSE if result is different
+    #TODO: Test FFT against ftt.fft, returns a boolean, TRUE if result is same, FALSE if result is different
+
+    #TODO: BENCHMARKSS, should be performed on a wide range of values
     # for N in range (2 ** 45):
     signal = np.random.rand(2**14)
     start_time = timeit.default_timer()
@@ -160,7 +164,7 @@ if __name__ == "__main__":
     bench_CT_result = {}
     bench_oldDFT_result = {}
 
-    for N in (2 ** p for p in range(1, 12)):
+    for N in (2 ** p for p in range(1, 13)):
         signal = np.random.rand(N)
         start_time = timeit.default_timer()
         FFT_CT(signal)
