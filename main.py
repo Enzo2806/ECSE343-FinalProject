@@ -127,7 +127,7 @@ if __name__ == "__main__":
     print("FIRST TEST")
     print("__________________________")
     print("Description: Calls the FFT_CT function with a signal of length 0.")
-    print("Expected Output: SHould throw the following Exception: \"Invalid signal: length 0\" ")
+    print("Expected Output: Should throw the following Exception: \"Invalid signal: length 0\" ")
     print("Output:")
     try:
         testVector = np.random.rand(0)
@@ -145,11 +145,27 @@ if __name__ == "__main__":
 
     # VALIDATION TESTS, should be performed on a wide range of values
     #TODO: Test FFT against our DFT , returns a boolean, TRUE if result is same, FALSE if result is different
+    print("THIRD TEST")
+    print("__________________________")
+    print("Description: Should print TRUE if the the result found by our FFT is the same as the one computed using our DFT, else it prints FALSE")
+    print("Output:")
+    N = 2**8
+    signal = np.random.rand(N)
+    fft = FFT_CT(signal)
+    dft = DFT(signal)
+    npfft = np.fft.fft(signal)
+    print (np.array_equal(fft, dft))
+
+
+
+
     #TODO: Test FFT against ftt.fft, returns a boolean, TRUE if result is same, FALSE if result is different
+
+
 
     #TODO: BENCHMARKSS, should be performed on a wide range of values
     # for N in range (2 ** 45):
-    signal = np.random.rand(2**14)
+    signal = np.random.rand(2**8)
     start_time = timeit.default_timer()
     FFT_CT(signal)
     print("Time taken:")
