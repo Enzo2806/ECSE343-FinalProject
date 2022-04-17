@@ -154,8 +154,8 @@ if __name__ == "__main__":
     fft = FFT_CT(signal)
     dft = DFT(signal)
     npfft = np.fft.fft(signal)
-    print (np.array_equal(fft, dft))
-
+    print (np.allclose(fft, dft))
+    print(np.allclose(fft, npfft))
 
 
 
@@ -164,7 +164,6 @@ if __name__ == "__main__":
 
 
     #TODO: BENCHMARKSS, should be performed on a wide range of values
-    # for N in range (2 ** 45):
     signal = np.random.rand(2**8)
     start_time = timeit.default_timer()
     FFT_CT(signal)
