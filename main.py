@@ -39,7 +39,7 @@ def DFT(inSignal, s: int = -1):
     return y
 
 
-def iDFT(inSignal: complex):
+def iDFT(inSignal):
     """
     Function generating the inverse DFT, relying on the generalized DFT routine above.
     :param inSignal: complex-valued (sampled) 1D DFT input numpy array.
@@ -81,7 +81,7 @@ def DFT2D(inSignal2D, s: int = -1):
     return y
 
 
-def iDFT2D(inSignal2D: complex):
+def iDFT2D(inSignal2D):
     """
     Function to generate the inverse 2-Dimensional discrete Fourier transform of the input signal.
     :param inSignal2D: complex-valued (sampled) 2D DFT input array.
@@ -136,14 +136,16 @@ def iFFT_CT(inSignal):
     # multiplied by 1 / N
     return 1 / N * FFT_CT(inSignal, 1)
 
-def FFT_CT2D(inSignal2D: complex, s: int = -1):
+
+def FFT_CT2D(inSignal2D, s: int = -1):
     """
     Function generating the 2-Dimensional FFT of the given 2D signal using the Cooley-Tukey Algorithm we implemented
     :param inSignal2D: 2D (sampled) input signal numpy array
     :param s: sign parameter with default value -1 for the FFT vs. iFFT setting
     :return: the 2D DFT of the input signal
     """
-    return FFT_CT(np.transpose(FFT_CT(np.transpose(inSignal2D), s)), s)
+    return np.transpose(FFT_CT(np.transpose(FFT_CT(inSignal2D, s)), s))
+
 
 if __name__ == "__main__":
     # Test the FFT_CT function
@@ -184,8 +186,10 @@ if __name__ == "__main__":
     # TODO: Test FFT against ftt.fft, returns a boolean, TRUE if result is same, FALSE if result is different
 
     # TODO: Test 2DFFT
-    testVector = np.random.rand(2*14)
-    
+    testVector_2D = np.random.rand(2 ** 8, 2 ** 8)
+    print("2D Test")
+    print(np.allclose(FFT_CT2D(testVector_2D), np.fft.fft2(testVector_2D)))
+    print(np.allclose(FFT_CT2D(testVector_2D), DFT2D(testVector_2D)))
 
     # TODO: BENCHMARKSS, should be performed on a wide range of values
     signal = np.random.rand(2 ** 8)
