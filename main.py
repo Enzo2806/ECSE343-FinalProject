@@ -13,16 +13,16 @@ import matplotlib.pyplot as plt  # plotting
 import numpy as np  # all of numpy...
 import timeit
 
+
 def DFT(inSignal, s: int = -1):
     """
+    Function to generate the discrete Fourier transform of the input signal.
     :param inSignal: 1D (sampled) input signal numpy array
     :param s: sign parameter with default value -1 for the DFT vs. iDFT setting
     :return: returns the DFT of the input signal
     """
     y = np.zeros(inSignal.shape, dtype=complex)
-    ### BEGIN SOLUTION
     # Solution is based on the given formula in the assignment instructions.
-
     N = inSignal.shape[0]  # N is the length of the input
 
     # Create a matrix with each cell storing the product of its indices
@@ -36,12 +36,12 @@ def DFT(inSignal, s: int = -1):
 
     # Obtain the result using f_hat = M @ f
     y = inSignal @ M
-    ### END SOLUTION
     return y
 
 
 def iDFT(inSignal: complex):
     """
+    Function generating the inverse DFT, relying on the generalized DFT routine above.
     :param inSignal: complex-valued (sampled) 1D DFT input numpy array.
     :return: returns the iDFT of the input signal.
     """
@@ -55,6 +55,7 @@ def iDFT(inSignal: complex):
 
 def DFT2D(inSignal2D, s: int = -1):
     """
+    Function to generate the 2-Dimensional discrete Fourier transform of the input signal.
     :param inSignal2D: complex-valued (sampled) 2D DFT input array.
     :param s: sign parameter with default value -1 for the DFT vs. iDFT setting.
     :return: the generated DFT2D given the input signal.
@@ -82,6 +83,7 @@ def DFT2D(inSignal2D, s: int = -1):
 
 def iDFT2D(inSignal2D: complex):
     """
+    Function to generate the inverse 2-Dimensional discrete Fourier transform of the input signal.
     :param inSignal2D: complex-valued (sampled) 2D DFT input array.
     :return: the generated iDFT2D given the input signal.
     """
@@ -122,6 +124,27 @@ def FFT_CT(inSignal, s: int = -1):
     return result
 
 
+def iFFT_CT(inSignal):
+    """
+    Function generating the inverse FFT of the given signal using the Cooley-Tukey ALgorithm
+    :param inSignal: complex-valued (sampled) 1D DFT input numpy array
+    :return: the iFFT of the input signal
+    """
+    N = inSignal.shape[0]  # N is the length of the input
+    # The iFFT is the inverse fast fourier transform
+    # and it's just the FFT of the same signal, with a change of sign for s
+    # multiplied by 1 / N
+    return 1 / N * FFT_CT(inSignal, 1)
+
+def FFT_CT2D(inSignal2D: complex, s: int = -1):
+    """
+    Function generating the 2-Dimensional FFT of the given 2D signal using the Cooley-Tukey Algorithm we implemented
+    :param inSignal2D: 2D (sampled) input signal numpy array
+    :param s: sign parameter with default value -1 for the FFT vs. iFFT setting
+    :return: the 2D DFT of the input signal
+    """
+    return FFT_CT(np.transpose(FFT_CT(np.transpose(inSignal2D), s)), s)
+
 if __name__ == "__main__":
     # Test the FFT_CT function
     print("FIRST TEST")
@@ -141,30 +164,31 @@ if __name__ == "__main__":
     print("Expected Output: Should throw the following Exception: \"Invalid signal: length 0\" ")
     print("Output:")
 
-    #TODO: Implement a shit ton of other tests here.
+    # TODO: Implement a shit ton of other tests here.
 
     # VALIDATION TESTS, should be performed on a wide range of values
-    #TODO: Test FFT against our DFT , returns a boolean, TRUE if result is same, FALSE if result is different
+    # TODO: Test FFT against our DFT , returns a boolean, TRUE if result is same, FALSE if result is different
     print("THIRD TEST")
     print("__________________________")
-    print("Description: Should print TRUE if the the result found by our FFT is the same as the one computed using our DFT, else it prints FALSE")
+    print(
+        "Description: Should print TRUE if the the result found by our FFT is the same as the one computed using our DFT, else it prints FALSE")
     print("Output:")
-    N = 2**8
+    N = 2 ** 8
     signal = np.random.rand(N)
     fft = FFT_CT(signal)
     dft = DFT(signal)
     npfft = np.fft.fft(signal)
-    print (np.allclose(fft, dft))
+    print(np.allclose(fft, dft))
     print(np.allclose(fft, npfft))
 
+    # TODO: Test FFT against ftt.fft, returns a boolean, TRUE if result is same, FALSE if result is different
 
+    # TODO: Test 2DFFT
+    testVector = np.random.rand(2*14)
+    
 
-    #TODO: Test FFT against ftt.fft, returns a boolean, TRUE if result is same, FALSE if result is different
-
-
-
-    #TODO: BENCHMARKSS, should be performed on a wide range of values
-    signal = np.random.rand(2**8)
+    # TODO: BENCHMARKSS, should be performed on a wide range of values
+    signal = np.random.rand(2 ** 8)
     start_time = timeit.default_timer()
     FFT_CT(signal)
     print("Time taken:")
@@ -183,11 +207,11 @@ if __name__ == "__main__":
         signal = np.random.rand(N)
         start_time = timeit.default_timer()
         FFT_CT(signal)
-        bench_CT_result[N] = timeit.default_timer()-start_time
+        bench_CT_result[N] = timeit.default_timer() - start_time
 
         start_time = timeit.default_timer()
         DFT(signal)
-        bench_oldDFT_result[N] = timeit.default_timer()-start_time
+        bench_oldDFT_result[N] = timeit.default_timer() - start_time
 
     lists = sorted(bench_CT_result.items())  # sorted by key, return a list of tuples
     N, CT_time = zip(*lists)  # unpack a list of pairs into two tuples
@@ -198,8 +222,3 @@ if __name__ == "__main__":
     plt.plot(N, oldDFT_time)
 
     plt.show()
-
-
-
-
-
