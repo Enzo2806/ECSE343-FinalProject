@@ -147,6 +147,19 @@ def FFT_CT2D(inSignal2D, s: int = -1):
     return np.transpose(FFT_CT(np.transpose(FFT_CT(inSignal2D, s)), s))
 
 
+def iFFT_CT2D(inSignal2D):
+    """
+    Function generating the inverse 2-Dimensional FFT of the given 2D signal using the Cooley-Tukey Algorithm we implemented
+    :param inSignal2D: complex-valued (sampled) 2D DFT input array.
+    :return: the generated iDFT2D given the input signal.
+    """
+    N = inSignal2D.shape[0]  # N is the length of the input
+    # The iFFT2D is the 2D inverse fast fourier transform
+    # and it's just the 2D FFT of the same signal, with a change of sign for s
+    # multiplied by 1 / N^2
+    return (1 / N ** 2) * FFT_CT2D(inSignal2D, 1)
+
+
 if __name__ == "__main__":
     # Test the FFT_CT function
     print("FIRST TEST")
@@ -186,7 +199,7 @@ if __name__ == "__main__":
     # TODO: Test FFT against ftt.fft, returns a boolean, TRUE if result is same, FALSE if result is different
 
     # TODO: Test 2DFFT
-    testVector_2D = np.random.rand(2 ** 8, 2 ** 8)
+    testVector_2D = np.random.rand(2 ** 2, 2 ** 2)
     print("2D Test")
     print(np.allclose(FFT_CT2D(testVector_2D), np.fft.fft2(testVector_2D)))
     print(np.allclose(FFT_CT2D(testVector_2D), DFT2D(testVector_2D)))
@@ -224,5 +237,7 @@ if __name__ == "__main__":
     lists = sorted(bench_oldDFT_result.items())  # sorted by key, return a list of tuples
     N, oldDFT_time = zip(*lists)  # unpack a list of pairs into two tuples
     plt.plot(N, oldDFT_time)
-
+    plt.title("Ma bite sur ton front")
+    plt.xlabel("Value of N (Size of the array)")
+    plt.ylabel("Time taken (seconds)")
     plt.show()
