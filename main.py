@@ -12,7 +12,7 @@ import sys
 import matplotlib.pyplot as plt  # plotting
 import numpy as np  # all of numpy...
 import timeit
-
+from PIL import Image
 
 def DFT(inSignal, s: int = -1):
     """
@@ -199,7 +199,7 @@ if __name__ == "__main__":
     # TODO: Test FFT against ftt.fft, returns a boolean, TRUE if result is same, FALSE if result is different
 
     # TODO: Test 2DFFT
-    testVector_2D = np.random.rand(2 ** 2, 2 ** 2)
+    testVector_2D = np.random.rand(2 ** 10, 2 ** 10)
     print("2D Test")
     print(np.allclose(FFT_CT2D(testVector_2D), np.fft.fft2(testVector_2D)))
     print(np.allclose(FFT_CT2D(testVector_2D), DFT2D(testVector_2D)))
@@ -241,3 +241,22 @@ if __name__ == "__main__":
     plt.xlabel("Value of N (Size of the array)")
     plt.ylabel("Time taken (seconds)")
     plt.show()
+
+    # TODO: Application
+    # image = np.asarray(Image.open('Koala.jpg'))
+    # print(image)
+
+    # Load test data from file
+    image = None
+    with open('A3-test-data.npy', 'rb') as f:
+        image = np.load(f)
+    print(image)
+
+    cmap = plt.get_cmap('gray')
+    _, plots = plt.subplots(2, 1, figsize=(10, 7))
+    plt.setp(plots, xticks=[], yticks=[])
+    plots[0].set_title('test input image', size=8)
+    plots[0].imshow(image, cmap, vmin=0, vmax=1)
+    plots[1].set_title('blurred output image', size=8)
+    plots[1].imshow(FFT_CT2D(image), cmap, vmin=0, vmax=1)
+    plt.show()  # this is a blocking call; kill the plotting window to continue execution
