@@ -124,6 +124,7 @@ def FFT_CT(inSignal, s: int = -1):
     return result
 
 
+<<<<<<< Updated upstream
 def iFFT_CT(inSignal):
     """
     Function generating the inverse FFT of the given signal using the Cooley-Tukey ALgorithm
@@ -158,6 +159,35 @@ def iFFT_CT2D(inSignal2D):
     # and it's just the 2D FFT of the same signal, with a change of sign for s
     # multiplied by 1 / N^2
     return (1 / N ** 2) * FFT_CT2D(inSignal2D, 1)
+=======
+def FFT_CT_base(inSignal, k, s: int = -1):
+    """
+    Function generating the FFT of the given signal using the Cooley-Tukey ALgorithm
+    :param inSignal: 1D (sampled) input signal numpy array
+    :param s: sign parameter with default value -1 for the DFT vs. iDFT setting
+    :return: returns the DFT of the input signal
+    """
+    result = np.zeros(inSignal.shape, dtype=complex)
+
+    N = inSignal.shape[0]
+
+    if N == 0:
+        raise ValueError("Invalid signal: length 0")
+
+    if N == (k):
+        result = DFT(inSignal,s)
+    else:
+        w = np.exp(complex(0, s * 2 * np.pi / N))
+        diag_e_a = np.diag(np.full(int(N / 2), w) ** np.arange(N / 2))
+
+        inSignal_e_hat = FFT_CT_base(inSignal[::2],k)
+        inSignal_o_hat = FFT_CT_base(inSignal[1::2],k)
+
+        result[0: int(N / 2)] = inSignal_e_hat + diag_e_a @ inSignal_o_hat
+        result[int(N / 2): N] = inSignal_e_hat - diag_e_a @ inSignal_o_hat
+
+    return result
+>>>>>>> Stashed changes
 
 
 if __name__ == "__main__":
@@ -173,6 +203,7 @@ if __name__ == "__main__":
     except Exception as e:
         print(e)
 
+<<<<<<< Updated upstream
     print("SECOND TEST")
     print("__________________________")
     print("Description: ")
@@ -184,6 +215,13 @@ if __name__ == "__main__":
     # VALIDATION TESTS, should be performed on a wide range of values
     # TODO: Test FFT against our DFT , returns a boolean, TRUE if result is same, FALSE if result is different
     print("THIRD TEST")
+=======
+    #TODO: Implement a shit ton of other tests here.
+
+    # VALIDATION TESTS, should be performed on a wide range of values
+    #TODO: Test FFT against our DFT , returns a boolean, TRUE if result is same, FALSE if result is different
+    print("\nSECOND TEST")
+>>>>>>> Stashed changes
     print("__________________________")
     print(
         "Description: Should print TRUE if the the result found by our FFT is the same as the one computed using our DFT, else it prints FALSE")
@@ -193,7 +231,13 @@ if __name__ == "__main__":
     fft = FFT_CT(signal)
     dft = DFT(signal)
     npfft = np.fft.fft(signal)
+<<<<<<< Updated upstream
     print(np.allclose(fft, dft))
+=======
+    print("Is FFT_CT equal to DFT ?")
+    print (np.allclose(fft, dft))
+    print("Is FFT_CT close to np.fft.fft ?")
+>>>>>>> Stashed changes
     print(np.allclose(fft, npfft))
 
     # TODO: Test FFT against ftt.fft, returns a boolean, TRUE if result is same, FALSE if result is different
@@ -204,17 +248,39 @@ if __name__ == "__main__":
     print(np.allclose(FFT_CT2D(testVector_2D), np.fft.fft2(testVector_2D)))
     print(np.allclose(FFT_CT2D(testVector_2D), DFT2D(testVector_2D)))
 
+<<<<<<< Updated upstream
     # TODO: BENCHMARKSS, should be performed on a wide range of values
     signal = np.random.rand(2 ** 8)
+=======
+    #TODO: Test FFT against ftt.fft, returns a boolean, TRUE if result is same, FALSE if result is different
+
+
+
+    #TODO: BENCHMARKSS, should be performed on a wide range of values
+    print("\nThird TEST")
+    print("__________________________")
+    print("Description: Should print the time taken to compute the Discrete Fourier Transform using different algorithm ")
+    print("Output:")
+    signal = np.random.rand(2**15)
+>>>>>>> Stashed changes
     start_time = timeit.default_timer()
     FFT_CT(signal)
-    print("Time taken:")
+    print ("Time taken by FFT_CT:")
     print(timeit.default_timer() - start_time)
+
     start_time = timeit.default_timer()
     np.fft.fft(signal)
+    print("Time taken by np.fft.fft:")
     print(timeit.default_timer() - start_time)
+
+    #start_time = timeit.default_timer()
+    #DFT(signal)
+    #print("Time taken by DFT")
+    #print(timeit.default_timer() - start_time)
+
     start_time = timeit.default_timer()
-    DFT(signal)
+    FFT_CT_base(signal, 2**7)
+    print("Time taken by FFT_CT_BASE:")
     print(timeit.default_timer() - start_time)
 
     bench_CT_result = {}
@@ -230,6 +296,7 @@ if __name__ == "__main__":
         DFT(signal)
         bench_oldDFT_result[N] = timeit.default_timer() - start_time
 
+
     lists = sorted(bench_CT_result.items())  # sorted by key, return a list of tuples
     N, CT_time = zip(*lists)  # unpack a list of pairs into two tuples
     plt.plot(N, CT_time)
@@ -242,6 +309,7 @@ if __name__ == "__main__":
     plt.ylabel("Time taken (seconds)")
     plt.show()
 
+<<<<<<< Updated upstream
     # TODO: Application
     # image = np.asarray(Image.open('Koala.jpg'))
     # print(image)
@@ -260,3 +328,13 @@ if __name__ == "__main__":
     plots[1].set_title('blurred output image', size=8)
     plots[1].imshow(FFT_CT2D(image), cmap, vmin=0, vmax=1)
     plt.show()  # this is a blocking call; kill the plotting window to continue execution
+=======
+
+    #print("\nSECOND TEST")
+    #print("__________________________")
+    #print("Description: ")
+    #print("Expected Output: ")
+    #print("Output:")
+
+
+>>>>>>> Stashed changes
