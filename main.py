@@ -124,7 +124,7 @@ def FFT_CT(inSignal, s: int = -1):
     return result
 
 
-<<<<<<< Updated upstream
+
 def iFFT_CT(inSignal):
     """
     Function generating the inverse FFT of the given signal using the Cooley-Tukey ALgorithm
@@ -159,7 +159,7 @@ def iFFT_CT2D(inSignal2D):
     # and it's just the 2D FFT of the same signal, with a change of sign for s
     # multiplied by 1 / N^2
     return (1 / N ** 2) * FFT_CT2D(inSignal2D, 1)
-=======
+
 def FFT_CT_base(inSignal, k, s: int = -1):
     """
     Function generating the FFT of the given signal using the Cooley-Tukey ALgorithm
@@ -187,7 +187,7 @@ def FFT_CT_base(inSignal, k, s: int = -1):
         result[int(N / 2): N] = inSignal_e_hat - diag_e_a @ inSignal_o_hat
 
     return result
->>>>>>> Stashed changes
+
 
 
 if __name__ == "__main__":
@@ -203,7 +203,7 @@ if __name__ == "__main__":
     except Exception as e:
         print(e)
 
-<<<<<<< Updated upstream
+
     print("SECOND TEST")
     print("__________________________")
     print("Description: ")
@@ -215,13 +215,13 @@ if __name__ == "__main__":
     # VALIDATION TESTS, should be performed on a wide range of values
     # TODO: Test FFT against our DFT , returns a boolean, TRUE if result is same, FALSE if result is different
     print("THIRD TEST")
-=======
+
     #TODO: Implement a shit ton of other tests here.
 
     # VALIDATION TESTS, should be performed on a wide range of values
     #TODO: Test FFT against our DFT , returns a boolean, TRUE if result is same, FALSE if result is different
     print("\nSECOND TEST")
->>>>>>> Stashed changes
+
     print("__________________________")
     print(
         "Description: Should print TRUE if the the result found by our FFT is the same as the one computed using our DFT, else it prints FALSE")
@@ -231,13 +231,12 @@ if __name__ == "__main__":
     fft = FFT_CT(signal)
     dft = DFT(signal)
     npfft = np.fft.fft(signal)
-<<<<<<< Updated upstream
+
     print(np.allclose(fft, dft))
-=======
+
     print("Is FFT_CT equal to DFT ?")
     print (np.allclose(fft, dft))
-    print("Is FFT_CT close to np.fft.fft ?")
->>>>>>> Stashed changes
+
     print(np.allclose(fft, npfft))
 
     # TODO: Test FFT against ftt.fft, returns a boolean, TRUE if result is same, FALSE if result is different
@@ -248,10 +247,10 @@ if __name__ == "__main__":
     print(np.allclose(FFT_CT2D(testVector_2D), np.fft.fft2(testVector_2D)))
     print(np.allclose(FFT_CT2D(testVector_2D), DFT2D(testVector_2D)))
 
-<<<<<<< Updated upstream
+
     # TODO: BENCHMARKSS, should be performed on a wide range of values
     signal = np.random.rand(2 ** 8)
-=======
+
     #TODO: Test FFT against ftt.fft, returns a boolean, TRUE if result is same, FALSE if result is different
 
 
@@ -262,7 +261,7 @@ if __name__ == "__main__":
     print("Description: Should print the time taken to compute the Discrete Fourier Transform using different algorithm ")
     print("Output:")
     signal = np.random.rand(2**15)
->>>>>>> Stashed changes
+
     start_time = timeit.default_timer()
     FFT_CT(signal)
     print ("Time taken by FFT_CT:")
@@ -309,7 +308,7 @@ if __name__ == "__main__":
     plt.ylabel("Time taken (seconds)")
     plt.show()
 
-<<<<<<< Updated upstream
+
     # TODO: Application
     # image = np.asarray(Image.open('Koala.jpg'))
     # print(image)
@@ -328,7 +327,7 @@ if __name__ == "__main__":
     plots[1].set_title('blurred output image', size=8)
     plots[1].imshow(FFT_CT2D(image), cmap, vmin=0, vmax=1)
     plt.show()  # this is a blocking call; kill the plotting window to continue execution
-=======
+
 
     #print("\nSECOND TEST")
     #print("__________________________")
@@ -337,4 +336,4 @@ if __name__ == "__main__":
     #print("Output:")
 
 
->>>>>>> Stashed changes
+
