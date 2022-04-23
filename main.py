@@ -276,13 +276,21 @@ if __name__ == "__main__":
 
     base = 0
 
-    while base <= 9:
-        i = 0
-        average = 0
-        
-        while i <= 1000:
-            start_time = timeit.default_timer()
-            FFT_CT_base(signal, 2**base)
+    while base <= 4: #power of two used of the base case
+        length = 1
+        while length <= 4: #power of 2 used for the length of the signal
+            signal = signal = np.random.rand(2**length)
+            i = 0
+            average = 0
+            while i <= 10: #Iterates a thousand time over an array of the same base case and the length of array
+                start_time = timeit.default_timer()
+                FFT_CT_base(signal, 2**base)
+                average = average + (timeit.default_timer() - start_time)
+                i = i + 1
+            average = float(average / (i-1))
+            print("For a signal a signal of length" + str(length) + " and a base case of 2^" + str(base) +"the average time to do the computation is" + str(average))
+        length = length + 1
+    base = base + 1
 
     #Create the graph
     bench_CT_result = {}
