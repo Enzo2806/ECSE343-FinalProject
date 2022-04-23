@@ -288,9 +288,9 @@ if __name__ == "__main__":
                 average = average + (timeit.default_timer() - start_time)
                 i = i + 1
             average = float(average / (i-1))
-            print("For a signal a signal of length" + str(length) + " and a base case of 2^" + str(base) +"the average time to do the computation is" + str(average))
-        length = length + 1
-    base = base + 1
+            print("For a signal a signal of length " + str(length) + " and a base case of 2^" + str(base) +" the average time to do the computation is " + str(average) +" seconds")
+            length = length + 1
+        base = base + 1
 
     #Create the graph
     bench_CT_result = {}
