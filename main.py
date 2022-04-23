@@ -191,8 +191,9 @@ def FFT_CT_base(inSignal, k, s: int = -1):
 
 
 if __name__ == "__main__":
+    print("Validation Tests")
     # Test the FFT_CT function
-    print("FIRST TEST")
+    print("\nFIRST TEST")
     print("__________________________")
     print("Description: Calls the FFT_CT function with a signal of length 0.")
     print("Expected Output: Should throw the following Exception: \"Invalid signal: length 0\" ")
@@ -202,29 +203,15 @@ if __name__ == "__main__":
         FFT_CT(testVector)
     except Exception as e:
         print(e)
-
-
-    print("SECOND TEST")
     print("__________________________")
-    print("Description: ")
-    print("Expected Output: Should throw the following Exception: \"Invalid signal: length 0\" ")
-    print("Output:")
-
     # TODO: Implement a shit ton of other tests here.
-
-    # VALIDATION TESTS, should be performed on a wide range of values
-    # TODO: Test FFT against our DFT , returns a boolean, TRUE if result is same, FALSE if result is different
-    print("THIRD TEST")
-
-    #TODO: Implement a shit ton of other tests here.
 
     # VALIDATION TESTS, should be performed on a wide range of values
     #TODO: Test FFT against our DFT , returns a boolean, TRUE if result is same, FALSE if result is different
     print("\nSECOND TEST")
 
     print("__________________________")
-    print(
-        "Description: Should print TRUE if the the result found by our FFT is the same as the one computed using our DFT, else it prints FALSE")
+    print("Description: Should print TRUE if the the result found by our FFT is the same as the one computed using our DFT, else it prints FALSE")
     print("Output:")
     N = 2 ** 8
     signal = np.random.rand(N)
@@ -236,9 +223,9 @@ if __name__ == "__main__":
 
     print("Is FFT_CT equal to DFT ?")
     print (np.allclose(fft, dft))
-
+    print("Is FFT_CT equal to numpy's FFT?")
     print(np.allclose(fft, npfft))
-
+    print("__________________________")
     # TODO: Test FFT against ftt.fft, returns a boolean, TRUE if result is same, FALSE if result is different
 
     # TODO: Test 2DFFT
