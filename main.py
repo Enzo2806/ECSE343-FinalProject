@@ -207,33 +207,40 @@ if __name__ == "__main__":
     # TODO: Implement a shit ton of other tests here.
 
     # VALIDATION TESTS, should be performed on a wide range of values
-    #TODO: Test FFT against our DFT , returns a boolean, TRUE if result is same, FALSE if result is different
     print("\nSECOND TEST")
 
     print("__________________________")
-    print("Description: Should print TRUE if the the result found by our FFT is the same as the one computed using our DFT, else it prints FALSE")
+    print("Description: Should print TRUE if the the result found by our FFT is the same as the one computed using our DFT and np.fft.fft, else it prints FALSE")
+    print("The test is performed on a 1D 2^12 long array")
+    print("Expected Output: Should return true for both methods")
     print("Output:")
-    N = 2 ** 8
+
+    N = 2 ** 12
     signal = np.random.rand(N)
     fft = FFT_CT(signal)
     dft = DFT(signal)
     npfft = np.fft.fft(signal)
-
-    print(np.allclose(fft, dft))
-
     print("Is FFT_CT equal to DFT ?")
     print (np.allclose(fft, dft))
+
     print("Is FFT_CT equal to numpy's FFT?")
     print(np.allclose(fft, npfft))
+
     print("__________________________")
-    # TODO: Test FFT against ftt.fft, returns a boolean, TRUE if result is same, FALSE if result is different
 
     # TODO: Test 2DFFT
-    testVector_2D = np.random.rand(2 ** 10, 2 ** 10)
-    print("2D Test")
-    print(np.allclose(FFT_CT2D(testVector_2D), np.fft.fft2(testVector_2D)))
-    print(np.allclose(FFT_CT2D(testVector_2D), DFT2D(testVector_2D)))
+    print("\nTHIRD TEST")
 
+    print("__________________________")
+    print("Description: Should print TRUE if the the result found by our FFT is the same as the one computed using our DFT, else it prints FALSE")
+    print("The test is performed on a 2D 2^10 long array")
+    print("Output:")
+    testVector_2D = np.random.rand(2 ** 10, 2 ** 10)
+    print("Is FFT_CT2D equal to np.fft.fft2?")
+    print(np.allclose(FFT_CT2D(testVector_2D), np.fft.fft2(testVector_2D)))
+    print("Is FFT_CT2D equal to DFT2D?")
+    print(np.allclose(FFT_CT2D(testVector_2D), DFT2D(testVector_2D)))
+    print("__________________________")
 
     # TODO: BENCHMARKSS, should be performed on a wide range of values
     signal = np.random.rand(2 ** 8)
@@ -243,9 +250,9 @@ if __name__ == "__main__":
 
 
     #TODO: BENCHMARKSS, should be performed on a wide range of values
-    print("\nThird TEST")
+    print("\nFOURTH TEST")
     print("__________________________")
-    print("Description: Should print the time taken to compute the Discrete Fourier Transform using different algorithm ")
+    print("Description: Should print the time taken (in seconds) to compute the Discrete Fourier Transform using different algorithm ")
     print("Output:")
     signal = np.random.rand(2**15)
 
@@ -268,6 +275,7 @@ if __name__ == "__main__":
     FFT_CT_base(signal, 2**7)
     print("Time taken by FFT_CT_BASE:")
     print(timeit.default_timer() - start_time)
+    print("__________________________")
 
     bench_CT_result = {}
     bench_oldDFT_result = {}
@@ -301,19 +309,19 @@ if __name__ == "__main__":
     # print(image)
 
     # Load test data from file
-    image = None
-    with open('A3-test-data.npy', 'rb') as f:
-        image = np.load(f)
-    print(image)
+    #image = None
+    #with open('A3-test-data.npy', 'rb') as f:
+    #    image = np.load(f)
+    #print(image)
 
-    cmap = plt.get_cmap('gray')
-    _, plots = plt.subplots(2, 1, figsize=(10, 7))
-    plt.setp(plots, xticks=[], yticks=[])
-    plots[0].set_title('test input image', size=8)
-    plots[0].imshow(image, cmap, vmin=0, vmax=1)
-    plots[1].set_title('blurred output image', size=8)
-    plots[1].imshow(FFT_CT2D(image), cmap, vmin=0, vmax=1)
-    plt.show()  # this is a blocking call; kill the plotting window to continue execution
+    #cmap = plt.get_cmap('gray')
+    #_, plots = plt.subplots(2, 1, figsize=(10, 7))
+    #plt.setp(plots, xticks=[], yticks=[])
+    #plots[0].set_title('test input image', size=8)
+    #plots[0].imshow(image, cmap, vmin=0, vmax=1)
+    #plots[1].set_title('blurred output image', size=8)
+    #plots[1].imshow(FFT_CT2D(image), cmap, vmin=0, vmax=1)
+    #plt.show()  # this is a blocking call; kill the plotting window to continue execution
 
 
     #print("\nSECOND TEST")
