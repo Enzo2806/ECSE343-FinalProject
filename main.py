@@ -204,11 +204,8 @@ if __name__ == "__main__":
     except Exception as e:
         print(e)
     print("__________________________")
-    # TODO: Implement a shit ton of other tests here.
 
-    # VALIDATION TESTS, should be performed on a wide range of values
     print("\nSECOND TEST")
-
     print("__________________________")
     print("Description: Should print TRUE if the the result found by our FFT is the same as the one computed using our DFT and np.fft.fft, else it prints FALSE")
     print("The test is performed on a 1D 2^12 long array")
@@ -228,9 +225,7 @@ if __name__ == "__main__":
 
     print("__________________________")
 
-    # TODO: Test 2DFFT
     print("\nTHIRD TEST")
-
     print("__________________________")
     print("Description: Should print TRUE if the the result found by our FFT is the same as the one computed using our DFT, else it prints FALSE")
     print("The test is performed on a 2D 2^10 long array")
@@ -243,13 +238,7 @@ if __name__ == "__main__":
     print("__________________________")
 
     # TODO: BENCHMARKSS, should be performed on a wide range of values
-    signal = np.random.rand(2 ** 8)
 
-    #TODO: Test FFT against ftt.fft, returns a boolean, TRUE if result is same, FALSE if result is different
-
-
-
-    #TODO: BENCHMARKSS, should be performed on a wide range of values
     print("\nFOURTH TEST")
     print("__________________________")
     print("Description: Should print the time taken (in seconds) to compute the Discrete Fourier Transform using different algorithm ")
@@ -277,6 +266,14 @@ if __name__ == "__main__":
     print(timeit.default_timer() - start_time)
     print("__________________________")
 
+    print("\nFIFTH TEST")
+    print("__________________________")
+    print("Description: This test should determine which best case is the best for our recursion")
+    print("The test is performed on a 1D 2^12 long array")
+    print("Expected Output: Should return the average time taken for base cases from 1 to 2^10")
+    print("Output:")
+
+    #Create the graph
     bench_CT_result = {}
     bench_oldDFT_result = {}
 
