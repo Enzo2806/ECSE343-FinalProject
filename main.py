@@ -268,10 +268,21 @@ if __name__ == "__main__":
 
     print("\nFIFTH TEST")
     print("__________________________")
-    print("Description: This test should determine which best case is the best for our recursion")
-    print("The test is performed on a 1D 2^12 long array")
-    print("Expected Output: Should return the average time taken for base cases from 1 to 2^10")
+    print("Description: This test should determine which base case is the best for our recursion")
+    print("The test is performed on 1D array's ranging from 2^1 to 2^15, thea average is made on testing each base case a thousand time."
+          "From our graph, we expect the best base case to be between 2^0 and 2^9, so we will try base cases in this range")
+    print("Expected Output: Should return the average time to compute FFT with each base case")
     print("Output:")
+
+    base = 0
+
+    while base <= 9:
+        i = 0
+        average = 0
+        
+        while i <= 1000:
+            start_time = timeit.default_timer()
+            FFT_CT_base(signal, 2**base)
 
     #Create the graph
     bench_CT_result = {}
