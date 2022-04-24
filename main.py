@@ -212,7 +212,7 @@ if __name__ == "__main__":
     print("Expected Output: Should return true for both methods")
     print("Output:")
 
-    N = 2 ** 12
+    N = 2 ** 7
     signal = np.random.rand(N)
     fft = FFT_CT(signal)
     dft = DFT(signal)
@@ -230,7 +230,7 @@ if __name__ == "__main__":
     print("Description: Should print TRUE if the the result found by our FFT is the same as the one computed using our DFT, else it prints FALSE")
     print("The test is performed on a 2D 2^10 long array")
     print("Output:")
-    testVector_2D = np.random.rand(2 ** 10, 2 ** 10)
+    testVector_2D = np.random.rand(2 ** 7, 2 ** 7)
     print("Is FFT_CT2D equal to np.fft.fft2?")
     print(np.allclose(FFT_CT2D(testVector_2D), np.fft.fft2(testVector_2D)))
     print("Is FFT_CT2D equal to DFT2D?")
@@ -243,7 +243,7 @@ if __name__ == "__main__":
     print("__________________________")
     print("Description: Should print the time taken (in seconds) to compute the Discrete Fourier Transform using different algorithm ")
     print("Output:")
-    signal = np.random.rand(2**15)
+    signal = np.random.rand(2**7)
 
     start_time = timeit.default_timer()
     FFT_CT(signal)
@@ -269,28 +269,30 @@ if __name__ == "__main__":
     print("\nFIFTH TEST")
     print("__________________________")
     print("Description: This test should determine which base case is the best for our recursion")
-    print("The test is performed on 1D array's ranging from 2^1 to 2^15, thea average is made on testing each base case a thousand time."
+    print("The test is performed on 1D array's ranging from 2^1 to 2^15, the average is made on testing each base case a thousand time."
           "From our graph, we expect the best base case to be between 2^0 and 2^9, so we will try base cases in this range")
     print("Expected Output: Should return the average time to compute FFT with each base case")
     print("Output:")
 
-    base = 0
-
-    while base <= 4: #power of two used of the base case
-        length = 1
-        while length <= 4: #power of 2 used for the length of the signal
+    averagetimes = np.zeros(10)
+    for base in range(9):
+        length = base
+        totalaverage = 0
+        while length <= 10: #power of 2 used for the length of the signal
             signal = signal = np.random.rand(2**length)
             i = 0
             average = 0
-            while i <= 10: #Iterates a thousand time over an array of the same base case and the length of array
+            while i <= 1000: #Iterates a thousand time over an array of the same base case and the length of array
                 start_time = timeit.default_timer()
                 FFT_CT_base(signal, 2**base)
                 average = average + (timeit.default_timer() - start_time)
                 i = i + 1
             average = float(average / (i-1))
-            print("For a signal a signal of length " + str(length) + " and a base case of 2^" + str(base) +" the average time to do the computation is " + str(average) +" seconds")
+            totalaverage = totalaverage + average
+            print("For a signal a signal of length 2^" + str(length) + " and a base case of 2^" + str(base) +" the average time to do the computation is " + str(average) +" seconds")
             length = length + 1
-        base = base + 1
+        averagetimes[base] = totalaverage
+    print(averagetimes)
 
     #Create the graph
     bench_CT_result = {}
