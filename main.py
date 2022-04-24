@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt  # plotting
 import numpy as np  # all of numpy...
 import timeit
 from PIL import Image
-
+#@profile
 def DFT(inSignal, s: int = -1):
     """
     Function to generate the discrete Fourier transform of the input signal.
@@ -94,7 +94,7 @@ def iDFT2D(inSignal2D):
     # This method avoids code duplication
     return (1 / N ** 2) * DFT2D(inSignal2D, 1)
 
-
+#@profile
 def FFT_CT(inSignal, s: int = -1):
     """
     Function generating the FFT of the given signal using the Cooley-Tukey ALgorithm
@@ -160,7 +160,7 @@ def iFFT_CT2D(inSignal2D):
     # multiplied by 1 / N^2
     return (1 / N ** 2) * FFT_CT2D(inSignal2D, 1)
 
-
+#@profile
 def FFT_CT_base(inSignal, k, s: int = -1):
     """
     Function generating the FFT of the given signal using the Cooley-Tukey ALgorithm
@@ -189,9 +189,7 @@ def FFT_CT_base(inSignal, k, s: int = -1):
 
     return result
 
-
-
-if __name__ == "__main__":
+def first():
     print("Validation Tests")
     # Test the FFT_CT function
     print("\nFIRST TEST")
@@ -205,10 +203,11 @@ if __name__ == "__main__":
     except Exception as e:
         print(e)
     print("__________________________")
-
+def second():
     print("\nSECOND TEST")
     print("__________________________")
-    print("Description: Should print TRUE if the the result found by our FFT is the same as the one computed using our DFT and np.fft.fft, else it prints FALSE")
+    print(
+        "Description: Should print TRUE if the the result found by our FFT is the same as the one computed using our DFT and np.fft.fft, else it prints FALSE")
     print("The test is performed on a 1D 2^12 long array")
     print("Expected Output: Should return true for both methods")
     print("Output:")
@@ -219,16 +218,18 @@ if __name__ == "__main__":
     dft = DFT(signal)
     npfft = np.fft.fft(signal)
     print("Is FFT_CT equal to DFT ?")
-    print (np.allclose(fft, dft))
+    print(np.allclose(fft, dft))
 
     print("Is FFT_CT equal to numpy's FFT?")
     print(np.allclose(fft, npfft))
 
     print("__________________________")
 
+def third():
     print("\nTHIRD TEST")
     print("__________________________")
-    print("Description: Should print TRUE if the the result found by our FFT is the same as the one computed using our DFT, else it prints FALSE")
+    print(
+        "Description: Should print TRUE if the the result found by our FFT is the same as the one computed using our DFT, else it prints FALSE")
     print("The test is performed on a 2D 2^10 long array")
     print("Output:")
     testVector_2D = np.random.rand(2 ** 7, 2 ** 7)
@@ -238,64 +239,79 @@ if __name__ == "__main__":
     print(np.allclose(FFT_CT2D(testVector_2D), DFT2D(testVector_2D)))
     print("__________________________")
 
-    # TODO: BENCHMARKSS, should be performed on a wide range of values
-
+def fourfth():
     print("\nFOURTH TEST")
     print("__________________________")
-    print("Description: Should print the time taken (in seconds) to compute the Discrete Fourier Transform using different algorithm ")
+    print(
+        "Description: Should print the time taken (in seconds) to compute the Discrete Fourier Transform using different algorithm ")
     print("Output:")
-    signal = np.random.rand(2**7)
+    averagefftct = 0
+    averagefftbase = 0
+    averagefftnp = 0
+    for n in range(10):
+        signal = np.random.rand(2 ** 16)
 
-    start_time = timeit.default_timer()
-    FFT_CT(signal)
-    print ("Time taken by FFT_CT:")
-    print(timeit.default_timer() - start_time)
+        start_time = timeit.default_timer()
+        FFT_CT(signal)
+        #print("Time taken by FFT_CT:")
+        #print(timeit.default_timer() - start_time)
+        averagefftct = averagefftct + (timeit.default_timer() - start_time)
 
-    start_time = timeit.default_timer()
-    np.fft.fft(signal)
-    print("Time taken by np.fft.fft:")
-    print(timeit.default_timer() - start_time)
+        start_time = timeit.default_timer()
+        np.fft.fft(signal)
+        #print("Time taken by np.fft.fft:")
+        #print(timeit.default_timer() - start_time)
+        averagefftnp = averagefftnp + (timeit.default_timer() - start_time)
 
-    #start_time = timeit.default_timer()
-    #DFT(signal)
-    #print("Time taken by DFT")
-    #print(timeit.default_timer() - start_time)
+        #start_time = timeit.default_timer()
+        #DFT(signal)
+        #print("Time taken by DFT")
+        #print(timeit.default_timer() - start_time)
 
-    start_time = timeit.default_timer()
-    FFT_CT_base(signal, 2**7)
-    print("Time taken by FFT_CT_BASE:")
-    print(timeit.default_timer() - start_time)
+        start_time = timeit.default_timer()
+        FFT_CT_base(signal, 2 ** 5)
+        #print("Time taken by FFT_CT_BASE:")
+        #print(timeit.default_timer() - start_time)
+        averagefftbase = averagefftbase + (timeit.default_timer() - start_time)
+    averagefftct = averagefftct/10
+    averagefftbase = averagefftbase / 10
+    averagefftnp = averagefftnp / 10
+    print("Average Time FFT CT: " + str(averagefftct))
+    print("Average Time FFT BASE: " + str(averagefftbase))
+    print("Average Time FFT NP: " + str(averagefftnp))
     print("__________________________")
 
+def fifth():
     print("\nFIFTH TEST")
     print("__________________________")
     print("Description: This test should determine which base case is the best for our recursion")
-    print("The test is performed on 1D array's ranging from 2^1 to 2^15, the average is made on testing each base case a thousand time."
-          "From our graph, we expect the best base case to be between 2^0 and 2^9, so we will try base cases in this range")
+    print(
+        "The test is performed on 1D array's ranging from 2^1 to 2^15, the average is made on testing each base case a thousand time."
+        "From our graph, we expect the best base case to be between 2^0 and 2^9, so we will try base cases in this range")
     print("Expected Output: Should return the average time to compute FFT with each base case")
     print("Output:")
-
     averagetimes = np.zeros(10)
     for base in range(9):
         length = base
         totalaverage = 0
-        while length <= 10: #power of 2 used for the length of the signal
-            signal = signal = np.random.rand(2**length)
+        while length <= 10:  # power of 2 used for the length of the signal
+            signal = signal = np.random.rand(2 ** length)
             i = 0
             average = 0
-            while i <= 1000: #Iterates a thousand time over an array of the same base case and the length of array
+            while i <= 1000:  # Iterates a thousand time over an array of the same base case and the length of array
                 start_time = timeit.default_timer()
-                FFT_CT_base(signal, 2**base)
+                FFT_CT_base(signal, 2 ** base)
                 average = average + (timeit.default_timer() - start_time)
                 i = i + 1
-            average = float(average / (i-1))
+            average = float(average / (i - 1))
             totalaverage = totalaverage + average
-            print("For a signal a signal of length 2^" + str(length) + " and a base case of 2^" + str(base) +" the average time to do the computation is " + str(average) +" seconds")
+            print("For a signal a signal of length 2^" + str(length) + " and a base case of 2^" + str(
+                base) + " the average time to do the computation is " + str(average) + " seconds")
             length = length + 1
         averagetimes[base] = totalaverage
     print(averagetimes)
 
-    #Create the graph
+def ourgraph():
     bench_CT_result = {}
     bench_oldDFT_result = {}
 
@@ -309,7 +325,6 @@ if __name__ == "__main__":
         DFT(signal)
         bench_oldDFT_result[N] = timeit.default_timer() - start_time
 
-
     lists = sorted(bench_CT_result.items())  # sorted by key, return a list of tuples
     N, CT_time = zip(*lists)  # unpack a list of pairs into two tuples
     plt.plot(N, CT_time)
@@ -322,10 +337,8 @@ if __name__ == "__main__":
     plt.ylabel("Time taken (seconds)")
     plt.show()
 
-
-    # TODO: Application
-
-    image = np.asarray(Image.open('Koala.jpg')) # Import the image
+def application():
+    image = np.asarray(Image.open('Koala.jpg'))  # Import the image
 
     # https://stackoverflow.com/questions/58992619/display-red-channel-of-image-with-numpy-and-matplotlib-only
     redFFT = np.zeros(image.shape, np.uint8)
@@ -347,6 +360,24 @@ if __name__ == "__main__":
     plots[1].set_title('red input image', size=8)
     plots[1].imshow(redFFT / 255, cmap, vmin=0, vmax=1)
     plt.show()  # this is a blocking call; kill the plotting window to continue execution
+
+if __name__ == "__main__":
+    first()
+
+    second()
+
+    third()
+
+    fourfth()
+
+    #fifth()
+
+    #Create the graph
+    ourgraph()
+
+
+    # TODO: Application
+    #application()
 
 
 
