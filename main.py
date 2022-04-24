@@ -160,6 +160,7 @@ def iFFT_CT2D(inSignal2D):
     # multiplied by 1 / N^2
     return (1 / N ** 2) * FFT_CT2D(inSignal2D, 1)
 
+
 def FFT_CT_base(inSignal, k, s: int = -1):
     """
     Function generating the FFT of the given signal using the Cooley-Tukey ALgorithm
@@ -323,30 +324,29 @@ if __name__ == "__main__":
 
 
     # TODO: Application
-    # image = np.asarray(Image.open('Koala.jpg'))
+
+    image = np.asarray(Image.open('Koala.jpg')) # Import the image
+
+    # https://stackoverflow.com/questions/58992619/display-red-channel-of-image-with-numpy-and-matplotlib-only
+    redFFT = np.zeros(image.shape, np.uint8)
+    redFFT = FFT_CT2D(image[:, :, 0])
+    blueFFT = FFT_CT2D(image[:, :, 1])
+    greenFFT = FFT_CT2D(image[:, :, 2])
+
+    # # Load test data from file
+    # image = None
+    # with open('A3-test-data.npy', 'rb') as f:
+    #    image = np.load(f)
     # print(image)
 
-    # Load test data from file
-    #image = None
-    #with open('A3-test-data.npy', 'rb') as f:
-    #    image = np.load(f)
-    #print(image)
-
-    #cmap = plt.get_cmap('gray')
-    #_, plots = plt.subplots(2, 1, figsize=(10, 7))
-    #plt.setp(plots, xticks=[], yticks=[])
-    #plots[0].set_title('test input image', size=8)
-    #plots[0].imshow(image, cmap, vmin=0, vmax=1)
-    #plots[1].set_title('blurred output image', size=8)
-    #plots[1].imshow(FFT_CT2D(image), cmap, vmin=0, vmax=1)
-    #plt.show()  # this is a blocking call; kill the plotting window to continue execution
-
-
-    #print("\nSECOND TEST")
-    #print("__________________________")
-    #print("Description: ")
-    #print("Expected Output: ")
-    #print("Output:")
+    cmap = plt.get_cmap('gray')
+    _, plots = plt.subplots(2, 1, figsize=(10, 7))
+    plt.setp(plots, xticks=[], yticks=[])
+    plots[0].set_title('input image', size=8)
+    plots[0].imshow(image, cmap, vmin=0, vmax=1)
+    plots[1].set_title('red input image', size=8)
+    plots[1].imshow(redFFT / 255, cmap, vmin=0, vmax=1)
+    plt.show()  # this is a blocking call; kill the plotting window to continue execution
 
 
 
