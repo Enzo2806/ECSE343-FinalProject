@@ -154,8 +154,11 @@ def FFT_CT2D(inSignal2D, s: int = -1):
     :param s: sign parameter with default value -1 for the FFT vs. iFFT setting
     :return: the 2D DFT of the input signal
     """
-    return np.transpose(FFT_CT(FFT_CT(np.transpose(inSignal2D)), s))
 
+    #return np.transpose(FFT_CT(FFT_CT(np.transpose(inSignal2D)), s))
+
+    return np.transpose(np.fft.fft(np.transpose(np.fft.fft(inSignal2D))))
+    #return np.transpose(FFT_CT(np.transpose(FFT_CT(inSignal2D, s)), s))
 
 def iFFT_CT2D(inSignal2D):
     """
@@ -691,13 +694,13 @@ def ourgraphi2D():
 if __name__ == "__main__":
     # first()
 
-    # second()
+    #second()
 
-    # third()
+    third()
 
     # fourth()
 
-    # fifth()
+    fifth()
 
     # sixth()
 
