@@ -628,7 +628,7 @@ if __name__ == "__main__":
 
     # ninth()
 
-    tenth()
+    #tenth()
 
     #Create the graph
     # ourgraph()
