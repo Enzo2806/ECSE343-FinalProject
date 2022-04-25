@@ -544,7 +544,7 @@ def tenth():
     print("\nTENTH TEST")
     print("__________________________")
     print(
-        "Description: Should print the average time taken (in seconds) to compute the 2D Discrete Fourier Transform using different algorithm ")
+        "Description: Should print the average time taken (in seconds) to compute the 2D inverse Discrete Fourier Transform using different algorithm ")
     print("Output:")
     averagefftct = 0
     averagefftbase = 0
@@ -635,7 +635,7 @@ if __name__ == "__main__":
 
     # ninth()
 
-    tenth()
+    #tenth()
 
     #Create the graph
     # ourgraph()
