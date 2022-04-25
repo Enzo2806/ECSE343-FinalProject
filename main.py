@@ -224,7 +224,6 @@ def second():
     print(np.allclose(fft, npfft))
 
     print("__________________________")
-
 def third():
     print("\nTHIRD TEST")
     print("__________________________")
@@ -238,7 +237,6 @@ def third():
     print("Is FFT_CT2D equal to DFT2D?")
     print(np.allclose(FFT_CT2D(testVector_2D), DFT2D(testVector_2D)))
     print("__________________________")
-
 def fourfth():
     print("\nFOURTH TEST")
     print("__________________________")
@@ -248,8 +246,9 @@ def fourfth():
     averagefftct = 0
     averagefftbase = 0
     averagefftnp = 0
-    for n in range(10):
-        signal = np.random.rand(2 ** 16)
+    averageDFT = 0
+    for n in range(30):
+        signal = np.random.rand(2 ** 15)
 
         start_time = timeit.default_timer()
         FFT_CT(signal)
@@ -263,24 +262,27 @@ def fourfth():
         #print(timeit.default_timer() - start_time)
         averagefftnp = averagefftnp + (timeit.default_timer() - start_time)
 
-        #start_time = timeit.default_timer()
-        #DFT(signal)
+        start_time = timeit.default_timer()
+        DFT(signal)
         #print("Time taken by DFT")
         #print(timeit.default_timer() - start_time)
+        averageDFT = averageDFT + (timeit.default_timer() - start_time)
 
         start_time = timeit.default_timer()
         FFT_CT_base(signal, 2 ** 5)
         #print("Time taken by FFT_CT_BASE:")
         #print(timeit.default_timer() - start_time)
         averagefftbase = averagefftbase + (timeit.default_timer() - start_time)
-    averagefftct = averagefftct/10
-    averagefftbase = averagefftbase / 10
-    averagefftnp = averagefftnp / 10
+    averagefftct = averagefftct / 30
+    averagefftbase = averagefftbase / 30
+    averagefftnp = averagefftnp / 30
+    averageDFT = averageDFT / 30
+    print("Over 30 iterations")
     print("Average Time FFT CT: " + str(averagefftct))
     print("Average Time FFT BASE: " + str(averagefftbase))
     print("Average Time FFT NP: " + str(averagefftnp))
+    print("Average Time DFT:" + str(averageDFT))
     print("__________________________")
-
 def fifth():
     print("\nFIFTH TEST")
     print("__________________________")
@@ -310,7 +312,6 @@ def fifth():
             length = length + 1
         averagetimes[base] = totalaverage
     print(averagetimes)
-
 def ourgraph():
     bench_CT_result = {}
     bench_oldDFT_result = {}
@@ -362,11 +363,11 @@ def application():
     plt.show()  # this is a blocking call; kill the plotting window to continue execution
 
 if __name__ == "__main__":
-    first()
+    #first()
 
-    second()
+    #second()
 
-    third()
+    #third()
 
     fourfth()
 
