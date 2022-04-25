@@ -477,6 +477,7 @@ def eighth():
     print("Average Time FFT NP 2D: " + str(averagefftnp))
     print("Average Time DFT 2D:" + str(averageDFT))
     print("__________________________")
+
 def ninth():
     print("\nNINTH TEST")
     print("__________________________")
@@ -526,7 +527,7 @@ def ninth():
     print("__________________________")
 
 def tenth():
-    print("\nEIGHTH TEST")
+    print("\nTENTH TEST")
     print("__________________________")
     print(
         "Description: Should print the average time taken (in seconds) to compute the 2D Discrete Fourier Transform using different algorithm ")
@@ -571,6 +572,16 @@ def tenth():
     print("Average Time iFFT NP 2D: " + str(averagefftnp))
     print("Average Time iDFT 2D:" + str(averageDFT))
     print("__________________________")
+
+def eleventh():
+    print("\nELEVENTH TEST")
+    print("__________________________")
+    print(
+        "Description: Should print the time to perform the image compression ")
+    print("Output:")
+    start_time = timeit.default_timer()
+    application()
+    print("Our application took" + ((timeit.default_timer() - start_time)) + " seconds to perform the compression")
 
 def ourgraph():
     bench_CT_result = {}
@@ -650,7 +661,9 @@ if __name__ == "__main__":
 
     #ninth()
 
-    tenth()
+    #tenth()
+
+    eleventh()
     #Create the graph
     # ourgraph()
     
