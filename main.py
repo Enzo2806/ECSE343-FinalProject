@@ -460,27 +460,20 @@ def eighth():
 
         start_time = timeit.default_timer()
         FFT_CT2D(signal)
-        # print("Time taken by FFT_CT:")
-        # print(timeit.default_timer() - start_time)
         averagefftct = averagefftct + (timeit.default_timer() - start_time)
 
         start_time = timeit.default_timer()
         np.fft.fft2(signal)
-        # print("Time taken by np.fft.fft:")
-        # print(timeit.default_timer() - start_time)
         averagefftnp = averagefftnp + (timeit.default_timer() - start_time)
 
-        # start_time = timeit.default_timer()
-        # DFT2D(signal)
-        # print("Time taken by DFT")
-        # print(timeit.default_timer() - start_time)
-        # averageDFT = averageDFT + (timeit.default_timer() - start_time)
+        start_time = timeit.default_timer()
+        DFT2D(signal)
+        averageDFT = averageDFT + (timeit.default_timer() - start_time)
 
         #start_time = timeit.default_timer()
         #FFT_CT2D_base(signal, 2 ** 5)
-        # print("Time taken by FFT_CT_BASE:")
-        # print(timeit.default_timer() - start_time)
         #averagefftbase = averagefftbase + (timeit.default_timer() - start_time)
+
     averagefftct = averagefftct / 30
     averagefftbase = averagefftbase / 30
     averagefftnp = averagefftnp / 30
@@ -544,7 +537,7 @@ def tenth():
     print("\nTENTH TEST")
     print("__________________________")
     print(
-        "Description: Should print the average time taken (in seconds) to compute the 2D Discrete Fourier Transform using different algorithm ")
+        "Description: Should print the average time taken (in seconds) to compute the inverse 2D Discrete Fourier Transform using different algorithm ")
     print("Output:")
     averagefftct = 0
     averagefftbase = 0
@@ -631,7 +624,7 @@ if __name__ == "__main__":
 
     # seventh()
 
-    eighth()
+    # eighth()
 
     # ninth()
 
