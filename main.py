@@ -145,7 +145,7 @@ def FFT_CT2D(inSignal2D, s: int = -1):
     :param s: sign parameter with default value -1 for the FFT vs. iFFT setting
     :return: the 2D DFT of the input signal
     """
-    return np.transpose(FFT_CT(np.transpose(FFT_CT(inSignal2D, s)), s))
+    return FFT_CT(FFT_CT(inSignal2D, s).T, s).T
 
 def iFFT_CT2D(inSignal2D):
     """
@@ -215,7 +215,7 @@ def FFT_CT2D_base(inSignal2D,s: int = -1):
 def compress(Image, p):
     """
 
-    :param Image: 2D array represnting an image
+    :param Image: 2D array representing an image
     :param p: percentage of compression
     :return: the compressed image
     """
@@ -224,6 +224,20 @@ def compress(Image, p):
     thresh = fft_sorted[int(np.floor((1 - p) * len(fft_sorted)))]
     ind = np.abs(fft) > thresh
     return iFFT_CT2D(fft * ind).real
+
+
+def compress_DFT(Image, p):
+    """
+
+    :param Image: 2D array representing an image
+    :param p: percentage of compression
+    :return: the compressed image
+    """
+    dft = DFT2D(Image)
+    dft_sorted = np.sort(np.abs(dft.reshape(-1)))
+    thresh = dft_sorted[int(np.floor((1 - p) * len(dft_sorted)))]
+    ind = np.abs(dft) > thresh
+    return iDFT2D(dft * ind).real
     
 
 def first():
@@ -573,15 +587,6 @@ def tenth():
     print("Average Time iDFT 2D:" + str(averageDFT))
     print("__________________________")
 
-def eleventh():
-    print("\nELEVENTH TEST")
-    print("__________________________")
-    print(
-        "Description: Should print the time to perform the image compression ")
-    print("Output:")
-    start_time = timeit.default_timer()
-    application()
-    print("Our application took" + ((timeit.default_timer() - start_time)) + " seconds to perform the compression")
 
 def ourgraph():
     bench_CT_result = {}
@@ -599,48 +604,17 @@ def ourgraph():
 
     lists = sorted(bench_CT_result.items())  # sorted by key, return a list of tuples
     N, CT_time = zip(*lists)  # unpack a list of pairs into two tuples
-    plt.plot(N, CT_time)
+    plt.plot(N, CT_time, label="FFT")
 
     lists = sorted(bench_oldDFT_result.items())  # sorted by key, return a list of tuples
     N, oldDFT_time = zip(*lists)  # unpack a list of pairs into two tuples
-    plt.plot(N, oldDFT_time)
-    plt.title("Ma bite sur ton front")
+    plt.plot(N, oldDFT_time, label="DFT")
+    plt.title("Graph comparing the time efficiency of the DFT and FFT algorithm")
     plt.xlabel("Value of N (Size of the array)")
     plt.ylabel("Time taken (seconds)")
+    plt.legend()
     plt.show()
 
-
-def application():
-    # https://e2eml.school/convert_rgb_to_grayscale.html
-    image = np.asarray(Image.open('Koala.jpg'))  # Import the image
-
-    grayscale = np.dot(image[..., :3], [0.2989, 0.5870, 0.1140]) / 255  # Get the Grayscale version of the image
-    # Save the greyscale image to chekc its size and to make sure the compression is not impacted by the "imsave" method
-    plt.imsave('GreyKoala.jpg', grayscale)
-    size = os.path.getsize('GreyKoala.jpg') / 1000  # Get the size of the original image in kilobytes
-
-    print(np.allclose(iFFT_CT2D(FFT_CT2D(grayscale)), grayscale))
-
-    cmap = plt.get_cmap('gray')
-    _, plots = plt.subplots(3, 2, figsize=(10, 8))
-    plt.setp(plots, xticks=[], yticks=[])
-    plots[0][0].set_title("Input image, size={}KB".format(size), size=10)
-    plots[0][0].imshow(image, cmap, vmin=0, vmax=1)
-    compression_percentage = [0.7, 0.2, 0.1, 0.05, 0.002]
-    count1 = 1
-    count2 = 0
-
-    for j in compression_percentage:
-        compressed = compress(grayscale, j)
-        plt.imsave('compressed.jpg', compressed)  # Save the compressed image in the current package to get its size
-        size = os.path.getsize('compressed.jpg') / 1000  # Get the size of the compressed image in kilobytes
-        plots[count1][count2].set_title("{}% compressed, size={}KB".format(100*j, size), size=10)
-        plots[count1][count2].imshow(compressed, cmap,  vmin=0, vmax=1)
-        count1 += 1
-        if count1 == 3:
-            count1 = 0
-            count2 += 1
-    plt.show()
 
 if __name__ == "__main__":
     #first()
@@ -653,18 +627,184 @@ if __name__ == "__main__":
 
     #fifth()
 
-    #sixth()
+    # sixth()
 
-    #seventh()
+    # seventh()
 
-    #eighth()
+    eighth()
 
-    #ninth()
+    # ninth()
 
-    #tenth()
+    tenth()
 
-    eleventh()
     #Create the graph
     # ourgraph()
-    
-    #application()
+
+    # Application
+    # print("The application of the FFT algorithm we chose consists of compressing a given image to reduce its size.")
+    # print("This is done by taking the fast fourier transform of an input image (in grayscale) and by removing "
+    #       "(set to 0) the lowest frequencies of that fft depending on a threshold we specify. We then use the inverse "
+    #       "fft algorithm we wrote to go generate the compressed image.")
+    # print("We defined a function named \"compress\" that takes as argument an image and the percentage of frequencies "
+    #       "to keep in the fast fourier transform. For instance, compress(imageTest, 0.7) will remove 30% of all the "
+    #       "frequencies in the fourier domain (only the lowest ones).")
+    #
+    # print("\nFIRST APPLICATION TEST")
+    # print("__________________________")
+    # print("Description: This first application test will compress a koala image multiple times.")
+    # print("Expected Output: The output should be a matplotlib plot, showing the input image and all 5 resulting "
+    #       "compressed images with their respective new sizes.")
+    # print("Output:")
+    #
+    # # https://e2eml.school/convert_rgb_to_grayscale.html
+    # image = np.asarray(Image.open('Koala.jpg'))  # Import the image
+    # grayscale = np.dot(image[..., :3], [0.2989, 0.5870, 0.1140]) / 255  # Get the Grayscale version of the image
+    # # Save the greyscale image to check its size and to make sure the compression is not impacted by the "imsave" method
+    # plt.imsave('GreyKoala.jpg', grayscale)
+    # size = os.path.getsize('GreyKoala.jpg') / 1000  # Get the size of the original image in kilobytes
+    #
+    # cmap = plt.get_cmap('gray')
+    # _, plots = plt.subplots(3, 2, figsize=(10, 8))
+    # plt.setp(plots, xticks=[], yticks=[])
+    # plots[0][0].set_title("Input image, size={}KB".format(size), size=10)
+    # plots[0][0].imshow(grayscale, cmap, vmin=0, vmax=1)
+    # compression_percentage = [0.7, 0.2, 0.1, 0.05, 0.002]
+    #
+    # count1 = 1
+    # count2 = 0
+    #
+    # for j in compression_percentage:
+    #     compressed = compress(grayscale, j)
+    #
+    #     plt.imsave('compressed.jpg', compressed)  # Save the compressed image in the current package to get its size
+    #     size = os.path.getsize('compressed.jpg') / 1000  # Get the size of the compressed image in kilobytes
+    #     plots[count1][count2].set_title("Compression removed {}% of input image\nNew size={}KB".format(100-100*j, size), size=10)
+    #     plots[count1][count2].imshow(compressed, cmap,  vmin=0, vmax=1)
+    #     count1 += 1
+    #     if count1 == 3:
+    #         count1 = 0
+    #         count2 += 1
+    # plt.show()
+
+    print("\nSECOND APPLICATION TEST")
+    print("__________________________")
+    print("Description: This second application test will compare the dft and fft algorithms in the compression"
+          "of the same koala image.")
+    print("Expected Output: Benchmark of 4 compressions of 4 different images comparing the DFT and FFT algorithms.")
+    print("Output: ")
+
+    # Import all four images following the same procedure as in the firts test.
+    # Convert RGB Pictures to greyscale, save them to check their size (which changed since we converted them to
+    # greyscale).
+    image_VieuxLyon = np.asarray(Image.open('VieuxLyon.jpg'))  # Import the image
+    grayscale_VieuxLyon = np.dot(image_VieuxLyon[..., :3], [0.2989, 0.5870, 0.1140]) / 255  # Get the Grayscale version of the image
+    # Save the greyscale image to check its size and to make sure the compression is not impacted by the "imsave" method
+    plt.imsave('VieuxLyon.jpg', grayscale_VieuxLyon, cmap='gray')
+    size_VieuxLyon = os.path.getsize('VieuxLyon.jpg') / 1000  # Get the size of the original image in kilobytes
+
+    image_MoulinRouge = np.asarray(Image.open('MoulinRouge.jpg'))  # Import the image
+    grayscale_MoulinRouge = np.dot(image_MoulinRouge[..., :3], [0.2989, 0.5870, 0.1140]) / 255  # Get the Grayscale version of the image
+    # Save the greyscale image to check its size and to make sure the compression is not impacted by the "imsave" method
+    plt.imsave('MoulinRouge.jpg', grayscale_MoulinRouge, cmap='gray')
+    size_MoulinRouge = os.path.getsize('MoulinRouge.jpg') / 1000  # Get the size of the original image in kilobytes
+
+    image_Koala = np.asarray(Image.open('Koala.jpg'))  # Import the image
+    grayscale_Koala = np.dot(image_Koala[..., :3], [0.2989, 0.5870, 0.1140]) / 255  # Get the Grayscale version of the image
+    # Save the greyscale image to check its size and to make sure the compression is not impacted by the "imsave" method
+    plt.imsave('Koala.jpg', grayscale_Koala, cmap='gray')
+    size_Koala = os.path.getsize('Koala.jpg') / 1000  # Get the size of the original image in kilobytes
+
+    image_Fourviere = np.asarray(Image.open('Fourviere.jpg'))  # Import the image
+    grayscale_Fourviere = np.dot(image_Fourviere[..., :3],
+                             [0.2989, 0.5870, 0.1140]) / 255  # Get the Grayscale version of the image
+    # Save the greyscale image to check its size and to make sure the compression is not impacted by the "imsave" method
+    plt.imsave('Fourviere.jpg', grayscale_Fourviere, cmap='gray')
+    size_Fourviere = os.path.getsize('Fourviere.jpg') / 1000  # Get the size of the original image in kilobytes
+
+    # Configure the plot by adding the input images in a first column.
+    cmap = plt.get_cmap('gray')
+    _, plots = plt.subplots(4, 2, figsize=(10, 8))
+    plt.setp(plots, xticks=[], yticks=[])
+    plots[0][0].set_title("Input 4096x4096 image, size={}KB".format(size_VieuxLyon), size=10)
+    plots[0][0].imshow(grayscale_VieuxLyon, cmap, vmin=0, vmax=1)
+    plots[1][0].set_title("Input 2048x2048 image, size={}KB".format(size_MoulinRouge), size=10)
+    plots[1][0].imshow(grayscale_MoulinRouge, cmap, vmin=0, vmax=1)
+    plots[2][0].set_title("Input 1024x1024 image, size={}KB".format(size_Koala), size=10)
+    plots[2][0].imshow(grayscale_Koala, cmap, vmin=0, vmax=1)
+    plots[3][0].set_title("Input 512x512 image, size={}KB".format(size_Fourviere), size=10)
+    plots[3][0].imshow(grayscale_Fourviere, cmap, vmin=0, vmax=1)
+
+    # Variables to keep track of the time taken for each compression for both DFT and FFT algorithm
+    bench_FFT_result = {}
+    bench_DFT_result = {}
+
+    # 4096x4096 picture compression using FFT
+    start_time = timeit.default_timer()
+    compressed = compress(grayscale_VieuxLyon, 0.009)
+    bench_FFT_result[4096] = timeit.default_timer() - start_time
+    # Save the compressed image in the current package to get its size
+    plt.imsave('compressed.jpg', compressed, cmap='gray')
+    plots[0][1].set_title("Compression removed 99,1% of input image", size=10)
+    plots[0][1].imshow(compressed, cmap, vmin=0, vmax=1)
+
+    # 4096x4096 picture compression using DFT
+    start_time = timeit.default_timer()
+    compressed = compress_DFT(grayscale_VieuxLyon, 0.009)
+    bench_DFT_result[4096] = timeit.default_timer() - start_time
+
+    # 2048x2048 picture compression using FFT
+    start_time = timeit.default_timer()
+    compressed = compress(grayscale_MoulinRouge, 0.009)
+    bench_FFT_result[2048] = timeit.default_timer() - start_time
+    # Save the compressed image in the current package to get its size
+    plt.imsave('compressed.jpg', compressed, cmap='gray')
+    size = os.path.getsize('compressed.jpg') / 1000  # Get the size of the compressed image in kilobytes
+    plots[1][1].imshow(compressed, cmap, vmin=0, vmax=1)
+
+    # 2048x2048 picture compression using DFT
+    start_time = timeit.default_timer()
+    compressed = compress_DFT(grayscale_MoulinRouge, 0.009)
+    bench_DFT_result[2048] = timeit.default_timer() - start_time
+
+    # 1024x1024 picture compression using FFT
+    start_time = timeit.default_timer()
+    compressed = compress(grayscale_Koala, 0.009)
+    bench_FFT_result[1024] = timeit.default_timer() - start_time
+    # Save the compressed image in the current package to get its size
+    plt.imsave('compressed.jpg', compressed, cmap='gray')
+    size = os.path.getsize('compressed.jpg') / 1000  # Get the size of the compressed image in kilobytes
+    plots[2][1].imshow(compressed, cmap, vmin=0, vmax=1)
+
+    # 1024x1024 picture compression using DFT
+    start_time = timeit.default_timer()
+    compressed = compress_DFT(grayscale_Koala, 0.009)
+    bench_DFT_result[1024] = timeit.default_timer() - start_time
+
+    # 512x512 picture compression using FFT
+    start_time = timeit.default_timer()
+    compressed = compress(grayscale_Fourviere, 0.009)
+    bench_FFT_result[512] = timeit.default_timer() - start_time
+    # Save the compressed image in the current package to get its size
+    plt.imsave('compressed.jpg', compressed, cmap='gray')
+    size = os.path.getsize('compressed.jpg') / 1000  # Get the size of the compressed image in kilobytes
+    plots[3][1].imshow(compressed, cmap, vmin=0, vmax=1)
+
+    # 1024x1024 picture compression using DFT
+    start_time = timeit.default_timer()
+    compressed = compress_DFT(grayscale_Fourviere, 0.009)
+    bench_DFT_result[512] = timeit.default_timer() - start_time
+    plt.show()
+
+    lists = sorted(bench_FFT_result.items())  # sorted by key, return a list of tuples
+    N, CT_time = zip(*lists)  # unpack a list of pairs into two tuples
+    plt.plot(N, CT_time, label="FFT")
+
+    lists = sorted(bench_DFT_result.items())  # sorted by key, return a list of tuples
+    N, oldDFT_time = zip(*lists)  # unpack a list of pairs into two tuples
+    plt.plot(N, oldDFT_time, label="DFT")
+
+    plt.title("Graph comparing the time efficiency of the DFT and FFT algorithm for the compression application.")
+    plt.xlabel("Value of N (Size of the image)")
+    plt.ylabel("Time taken (seconds)")
+    plt.legend()
+    plt.show()
