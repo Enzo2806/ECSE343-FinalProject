@@ -137,6 +137,7 @@ def iFFT_CT(inSignal):
     return 1 / N * FFT_CT(inSignal, 1)
 
 
+
 def FFT_CT2D(inSignal2D, s: int = -1):
     """
     Function generating the 2-Dimensional FFT of the given 2D signal using the Cooley-Tukey Algorithm we implemented
@@ -145,7 +146,6 @@ def FFT_CT2D(inSignal2D, s: int = -1):
     :return: the 2D DFT of the input signal
     """
     return np.transpose(FFT_CT(np.transpose(FFT_CT(inSignal2D, s)), s))
-
 
 def iFFT_CT2D(inSignal2D):
     """
@@ -181,13 +181,36 @@ def FFT_CT_base(inSignal, k, s: int = -1):
         diag_e_a = np.diag(np.full(int(N / 2), w) ** np.arange(N / 2))
 
         inSignal_e_hat = FFT_CT_base(inSignal[::2], k, s)
-        inSignal_o_hat = FFT_CT_base(inSignal[1::2], s)
+        inSignal_o_hat = FFT_CT_base(inSignal[1::2], k, s)
+
+        #inSignal_e_hat = FFT_CT_base(inSignal[::2], k)
+        #inSignal_o_hat = FFT_CT_base(inSignal[1::2], k)
 
         result[0: int(N / 2)] = inSignal_e_hat + diag_e_a @ inSignal_o_hat
         result[int(N / 2): N] = inSignal_e_hat - diag_e_a @ inSignal_o_hat
 
     return result
 
+def iFFT_CT_base(inSignal):
+    """
+    Function generating the inverse FFT of the given signal using the Cooley-Tukey ALgorithm
+    :param inSignal: complex-valued (sampled) 1D DFT input numpy array
+    :return: the iFFT of the input signal
+    """
+    N = inSignal.shape[0]  # N is the length of the input
+    # The iFFT is the inverse fast fourier transform
+    # and it's just the FFT of the same signal, with a change of sign for s
+    # multiplied by 1 / N
+    return 1 / N * FFT_CT_base(inSignal,2**5,1)
+
+def FFT_CT2D_base(inSignal2D,s: int = -1):
+    """
+    Function generating the 2-Dimensional FFT of the given 2D signal using the Cooley-Tukey Algorithm we implemented
+    :param inSignal2D: 2D (sampled) input signal numpy array
+    :param s: sign parameter with default value -1 for the FFT vs. iFFT setting
+    :return: the 2D DFT of the input signal
+    """
+    return np.transpose(FFT_CT_base(np.transpose(FFT_CT_base(inSignal2D, 2**5,s)),2**5,s))
 
 def compress(Image, p):
     """
@@ -218,51 +241,154 @@ def first():
         print(e)
     print("__________________________")
 
-
 def second():
     print("\nSECOND TEST")
     print("__________________________")
     print(
-        "Description: Should print TRUE if the the result found by our FFT is the same as the one computed using our DFT and np.fft.fft, else it prints FALSE")
-    print("The test is performed on a 1D 2^12 long array")
+        "Description: Should print TRUE if the the result found by our FFT is the same as the one computed using our DFT and numpy's FFT, else it prints FALSE")
+    print("The test is performed on a 1D 2^14 long array")
     print("Expected Output: Should return true for both methods")
     print("Output:")
 
-    N = 2 ** 7
+    N = 2 ** 14
     signal = np.random.rand(N)
     fft = FFT_CT(signal)
     dft = DFT(signal)
     npfft = np.fft.fft(signal)
+    fftbase = FFT_CT_base(signal, 2 ** 5,-1)
+
     print("Is FFT_CT equal to DFT ?")
     print(np.allclose(fft, dft))
 
     print("Is FFT_CT equal to numpy's FFT?")
     print(np.allclose(fft, npfft))
 
-    print("__________________________")
+    print ("Is FFT_CT_base equal to FFT_CT?")
+    print(np.allclose(fftbase,fft))
 
+    print("Is FFT_CT_base equal to DFT?")
+    print(np.allclose(fftbase,dft))
+
+    print("Is FFT_CT_base equal to numpy's FFT?")
+    print(np.allclose(fftbase,npfft))
+    print("__________________________")
 
 def third():
     print("\nTHIRD TEST")
     print("__________________________")
     print(
         "Description: Should print TRUE if the the result found by our FFT is the same as the one computed using our DFT, else it prints FALSE")
-    print("The test is performed on a 2D 2^10 long array")
+    print("The test is performed on a 2D 2^12 long array")
     print("Output:")
-    testVector_2D = np.random.rand(2 ** 7, 2 ** 7)
-    print("Is FFT_CT2D equal to np.fft.fft2?")
-    print(np.allclose(FFT_CT2D(testVector_2D), np.fft.fft2(testVector_2D)))
+    testVector_2D = np.random.rand(2 ** 12, 2 ** 12)
+    fft = FFT_CT2D(testVector_2D)
+    npfft = np.fft.fft2(testVector_2D)
+    dft = DFT2D(testVector_2D)
+    #fftbase= FFT_CT2D_base(testVector_2D,-1)
+    print("Is FFT_CT2D equal to numpy's 2D FFT?")
+    print(np.allclose(fft, npfft))
+
     print("Is FFT_CT2D equal to DFT2D?")
-    print(np.allclose(FFT_CT2D(testVector_2D), DFT2D(testVector_2D)))
-    print(np.allclose(iFFT_CT2D(FFT_CT2D(testVector_2D)), testVector_2D))
+    print(np.allclose(fft, dft))
+
+    #print("Is FFT_CT2D_base equal to numpy's 2D FFT?")
+    #print(np.allclose(fftbase, npfft))
+
+    #print("Is FFT-CT2D_base equal to FFT_2D?")
+    #print(np.allclose(fftbase,fft))
+    #print(np.allclose(iFFT_CT2D(FFT_CT2D(testVector_2D)), testVector_2D))
+
     print("__________________________")
 
-
-def fourfth():
+def fourth():
     print("\nFOURTH TEST")
     print("__________________________")
     print(
-        "Description: Should print the time taken (in seconds) to compute the Discrete Fourier Transform using different algorithm ")
+        "Description: Should print TRUE if the the result found by our inverse FFT is the same as the one computed using our inverse DFT and numpy's inverse FFT, else it prints FALSE")
+    print("The test is performed on a 1D 2^14 long array")
+    print("Expected Output: Should return true for both methods")
+    print("Output:")
+
+    N = 2 ** 14
+    signal = np.random.rand(N)
+    ifft = iFFT_CT(signal)
+    idft = iDFT(signal)
+    inpfft = np.fft.ifft(signal)
+    ifftbase = iFFT_CT_base(signal)
+    print("Is iFFT_CT equal to iDFT ?")
+    print(np.allclose(ifft, idft))
+
+    print("Is iFFT_CT equal to numpy's iFFT?")
+    print(np.allclose(ifft, inpfft))
+
+    print("Is iFFT_CT_base equal to iFFT_CT?")
+    print(np.allclose(ifftbase,ifft))
+
+    print("Is iFFT_CT_base equal to iDFT?")
+    print(np.allclose(ifftbase,idft))
+    print("__________________________")
+
+def fifth():
+    print("\nFIFTH TEST")
+    print("__________________________")
+    print(
+        "Description: Should print TRUE if the the result found by our FFT is the same as the one computed using our DFT, else it prints FALSE")
+    print("The test is performed on a 2D 2^12 long array")
+    print("Output:")
+    testVector_2D = np.random.rand(2 ** 12, 2 ** 12)
+    ifft = iFFT_CT2D(testVector_2D)
+    inpfft = np.fft.ifft2(testVector_2D)
+    idft = iDFT2D(testVector_2D)
+    # ifftbase= iFFT_CT2D_base(testVector_2D,-1)
+    print("Is iFFT_CT2D equal to numpy's 2D iFFT?")
+    print(np.allclose(ifft, inpfft))
+
+    print("Is iFFT_CT2D equal to iDFT2D?")
+    print(np.allclose(ifft, idft))
+
+    # print("Is iFFT_CT2D_base equal to numpy's 2D iFFT?")
+    # print(np.allclose(ifftbase, inpfft))
+
+    # print("Is iFFT-CT2D_base equal to iFFT_2D?")
+    # print(np.allclose(ifftbase,ifft))
+    # print(np.allclose(iFFT_CT2D(FFT_CT2D(testVector_2D)), testVector_2D))
+
+def sixth():
+    print("\nSIXTH TEST")
+    print("__________________________")
+    print("Description: This test should determine which base case is the best for our recursion")
+    print(
+        "The test is performed on 1D array's ranging from 2^1 to 2^10, the average is made on testing each base case a thousand time."
+        "From our graph, we expect the best base case to be between 2^0 and 2^9, so we will try base cases in this range"
+    "This test might take several minutes to finish even on HEDT")
+    print("Expected Output: Should return the average time to compute FFT with each base case")
+    print("Output:")
+    averagetimes = np.zeros(10)
+    for base in range(9):
+        length = base
+        totalaverage = 0
+        while length <= 10:  # power of 2 used for the length of the signal
+            signal = signal = np.random.rand(2 ** length)
+            i = 0
+            average = 0
+            while i <= 30:  # Iterates a thousand time over an array of the same base case and the length of array
+                start_time = timeit.default_timer()
+                FFT_CT_base(signal, 2 ** base)
+                average = average + (timeit.default_timer() - start_time)
+                i = i + 1
+            average = float(average / (i - 1))
+            totalaverage = totalaverage + average
+            #print("For a signal a signal of length 2^" + str(length) + " and a base case of 2^" + str(base) + " the average time to do the computation is " + str(average) + " seconds")
+            length = length + 1
+        averagetimes[base] = totalaverage
+    print(averagetimes)
+
+def seventh():
+    print("\nSEVENTH TEST")
+    print("__________________________")
+    print(
+        "Description: Should print the time taken (in seconds) to compute the Discrete Fourier Transform using different algorithm "
+    "This test can take several minutes to finish even on HEDT")
     print("Output:")
     averagefftct = 0
     averagefftbase = 0
@@ -283,11 +409,11 @@ def fourfth():
         #print(timeit.default_timer() - start_time)
         averagefftnp = averagefftnp + (timeit.default_timer() - start_time)
 
-        start_time = timeit.default_timer()
-        DFT(signal)
+        #start_time = timeit.default_timer()
+        #DFT(signal)
         #print("Time taken by DFT")
         #print(timeit.default_timer() - start_time)
-        averageDFT = averageDFT + (timeit.default_timer() - start_time)
+        #averageDFT = averageDFT + (timeit.default_timer() - start_time)
 
         start_time = timeit.default_timer()
         FFT_CT_base(signal, 2 ** 5)
@@ -305,37 +431,147 @@ def fourfth():
     print("Average Time DFT:" + str(averageDFT))
     print("__________________________")
 
-
-def fifth():
-    print("\nFIFTH TEST")
+def eighth():
+    print("\nEIGHTH TEST")
     print("__________________________")
-    print("Description: This test should determine which base case is the best for our recursion")
     print(
-        "The test is performed on 1D array's ranging from 2^1 to 2^15, the average is made on testing each base case a thousand time."
-        "From our graph, we expect the best base case to be between 2^0 and 2^9, so we will try base cases in this range")
-    print("Expected Output: Should return the average time to compute FFT with each base case")
+        "Description: Should print the average time taken (in seconds) to compute the 2D Discrete Fourier Transform using different algorithm ")
     print("Output:")
-    averagetimes = np.zeros(10)
-    for base in range(9):
-        length = base
-        totalaverage = 0
-        while length <= 10:  # power of 2 used for the length of the signal
-            signal = signal = np.random.rand(2 ** length)
-            i = 0
-            average = 0
-            while i <= 1000:  # Iterates a thousand time over an array of the same base case and the length of array
-                start_time = timeit.default_timer()
-                FFT_CT_base(signal, 2 ** base)
-                average = average + (timeit.default_timer() - start_time)
-                i = i + 1
-            average = float(average / (i - 1))
-            totalaverage = totalaverage + average
-            print("For a signal a signal of length 2^" + str(length) + " and a base case of 2^" + str(
-                base) + " the average time to do the computation is " + str(average) + " seconds")
-            length = length + 1
-        averagetimes[base] = totalaverage
-    print(averagetimes)
-    
+    averagefftct = 0
+    averagefftbase = 0
+    averagefftnp = 0
+    averageDFT = 0
+    for n in range(30):
+        signal = np.random.rand(2 ** 12,2**12)
+
+        start_time = timeit.default_timer()
+        FFT_CT2D(signal)
+        # print("Time taken by FFT_CT:")
+        # print(timeit.default_timer() - start_time)
+        averagefftct = averagefftct + (timeit.default_timer() - start_time)
+
+        start_time = timeit.default_timer()
+        np.fft.fft2(signal)
+        # print("Time taken by np.fft.fft:")
+        # print(timeit.default_timer() - start_time)
+        averagefftnp = averagefftnp + (timeit.default_timer() - start_time)
+
+        # start_time = timeit.default_timer()
+        # DFT2D(signal)
+        # print("Time taken by DFT")
+        # print(timeit.default_timer() - start_time)
+        # averageDFT = averageDFT + (timeit.default_timer() - start_time)
+
+        #start_time = timeit.default_timer()
+        #FFT_CT2D_base(signal, 2 ** 5)
+        # print("Time taken by FFT_CT_BASE:")
+        # print(timeit.default_timer() - start_time)
+        #averagefftbase = averagefftbase + (timeit.default_timer() - start_time)
+    averagefftct = averagefftct / 30
+    averagefftbase = averagefftbase / 30
+    averagefftnp = averagefftnp / 30
+    averageDFT = averageDFT / 30
+    print("Over 30 iterations")
+    print("Average Time FFT CT2D: " + str(averagefftct))
+    print("Average Time FFT BASE 2D: " + str(averagefftbase))
+    print("Average Time FFT NP 2D: " + str(averagefftnp))
+    print("Average Time DFT 2D:" + str(averageDFT))
+    print("__________________________")
+def ninth():
+    print("\nNINTH TEST")
+    print("__________________________")
+    print(
+        "Description: Should print the average time taken (in seconds) to compute the inverse Discrete Fourier Transform using different algorithm "
+        "This test can take several minutes to finish even on HEDT")
+    print("Output:")
+    averagefftct = 0
+    averagefftbase = 0
+    averagefftnp = 0
+    averageDFT = 0
+    for n in range(30):
+        signal = np.random.rand(2 ** 14)
+
+        start_time = timeit.default_timer()
+        iFFT_CT(signal)
+        # print("Time taken by FFT_CT:")
+        # print(timeit.default_timer() - start_time)
+        averagefftct = averagefftct + (timeit.default_timer() - start_time)
+
+        start_time = timeit.default_timer()
+        np.fft.ifft(signal)
+        # print("Time taken by np.fft.fft:")
+        # print(timeit.default_timer() - start_time)
+        averagefftnp = averagefftnp + (timeit.default_timer() - start_time)
+
+        # start_time = timeit.default_timer()
+        # DFT(signal)
+        # print("Time taken by DFT")
+        # print(timeit.default_timer() - start_time)
+        # averageDFT = averageDFT + (timeit.default_timer() - start_time)
+
+        start_time = timeit.default_timer()
+        iFFT_CT_base(signal)
+        # print("Time taken by FFT_CT_BASE:")
+        # print(timeit.default_timer() - start_time)
+        averagefftbase = averagefftbase + (timeit.default_timer() - start_time)
+    averagefftct = averagefftct / 30
+    averagefftbase = averagefftbase / 30
+    averagefftnp = averagefftnp / 30
+    averageDFT = averageDFT / 30
+    print("Over 30 iterations")
+    print("Average Time iFFT CT: " + str(averagefftct))
+    print("Average Time iFFT BASE: " + str(averagefftbase))
+    print("Average Time iFFT NP: " + str(averagefftnp))
+    print("Average Time iDFT:" + str(averageDFT))
+    print("__________________________")
+
+def tenth():
+    print("\nEIGHTH TEST")
+    print("__________________________")
+    print(
+        "Description: Should print the average time taken (in seconds) to compute the 2D Discrete Fourier Transform using different algorithm ")
+    print("Output:")
+    averagefftct = 0
+    averagefftbase = 0
+    averagefftnp = 0
+    averageDFT = 0
+    for n in range(30):
+        signal = np.random.rand(2 ** 12, 2 ** 12)
+
+        start_time = timeit.default_timer()
+        iFFT_CT2D(signal)
+        # print("Time taken by FFT_CT:")
+        # print(timeit.default_timer() - start_time)
+        averagefftct = averagefftct + (timeit.default_timer() - start_time)
+
+        start_time = timeit.default_timer()
+        np.fft.ifft2(signal)
+        # print("Time taken by np.fft.fft:")
+        # print(timeit.default_timer() - start_time)
+        averagefftnp = averagefftnp + (timeit.default_timer() - start_time)
+
+        # start_time = timeit.default_timer()
+        # DFT2D(signal)
+        # print("Time taken by DFT")
+        # print(timeit.default_timer() - start_time)
+        # averageDFT = averageDFT + (timeit.default_timer() - start_time)
+
+        # start_time = timeit.default_timer()
+        # iFFT_CT2D_base(signal)
+        # print("Time taken by FFT_CT_BASE:")
+        # print(timeit.default_timer() - start_time)
+        # averagefftbase = averagefftbase + (timeit.default_timer() - start_time)
+    averagefftct = averagefftct / 30
+    averagefftbase = averagefftbase / 30
+    averagefftnp = averagefftnp / 30
+    averageDFT = averageDFT / 30
+    print("Over 30 iterations")
+    print("Average Time iFFT CT2D: " + str(averagefftct))
+    print("Average Time iFFT BASE 2D: " + str(averagefftbase))
+    print("Average Time iFFT NP 2D: " + str(averagefftnp))
+    print("Average Time iDFT 2D:" + str(averageDFT))
+    print("__________________________")
+
 def ourgraph():
     bench_CT_result = {}
     bench_oldDFT_result = {}
@@ -402,11 +638,20 @@ if __name__ == "__main__":
 
     #third()
 
-    # fourfth()
+    #fourth()
 
     #fifth()
 
+    #sixth()
+
+    #seventh()
+
+    #eighth()
+
+    #ninth()
+
+    tenth()
     #Create the graph
     # ourgraph()
     
-    application()
+    #application()
