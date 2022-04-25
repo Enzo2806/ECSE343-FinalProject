@@ -8,12 +8,14 @@ Thomas Dormart
 Enzo Benoit-Jeannin
 """
 # Import statements
+import os.path
 import sys
 import matplotlib.pyplot as plt  # plotting
 import numpy as np  # all of numpy...
 import timeit
-from PIL import Image
-#@profile
+from PIL import Image, ImageOps
+
+
 def DFT(inSignal, s: int = -1):
     """
     Function to generate the discrete Fourier transform of the input signal.
@@ -61,7 +63,6 @@ def DFT2D(inSignal2D, s: int = -1):
     :return: the generated DFT2D given the input signal.
     """
     y = np.zeros(inSignal2D.shape, dtype=complex)
-    ### BEGIN SOLUTION
     # This solution is based ont he given formula in the assignment instructions
 
     N = inSignal2D.shape[0]  # N is the length of the input
@@ -77,7 +78,6 @@ def DFT2D(inSignal2D, s: int = -1):
 
     # Use the given formula to obatin the 2D Dicrete Fourier Transform
     y = M @ (M @ inSignal2D.T).T
-    ### END SOLUTION
     return y
 
 
@@ -115,14 +115,13 @@ def FFT_CT(inSignal, s: int = -1):
         w = np.exp(complex(0, s * 2 * np.pi / N))
         diag_e_a = np.diag(np.full(int(N / 2), w) ** np.arange(N / 2))
 
-        inSignal_e_hat = FFT_CT(inSignal[::2])
-        inSignal_o_hat = FFT_CT(inSignal[1::2])
+        inSignal_e_hat = FFT_CT(inSignal[::2], s)
+        inSignal_o_hat = FFT_CT(inSignal[1::2], s)
 
         result[0: int(N / 2)] = inSignal_e_hat + diag_e_a @ inSignal_o_hat
         result[int(N / 2): N] = inSignal_e_hat - diag_e_a @ inSignal_o_hat
 
     return result
-
 
 
 def iFFT_CT(inSignal):
@@ -158,7 +157,7 @@ def iFFT_CT2D(inSignal2D):
     # The iFFT2D is the 2D inverse fast fourier transform
     # and it's just the 2D FFT of the same signal, with a change of sign for s
     # multiplied by 1 / N^2
-    return (1 / N ** 2) * FFT_CT2D(inSignal2D, 1)
+    return 1 / N ** 2 * FFT_CT2D(inSignal2D, 1)
 
 #@profile
 def FFT_CT_base(inSignal, k, s: int = -1):
@@ -176,18 +175,33 @@ def FFT_CT_base(inSignal, k, s: int = -1):
         raise ValueError("Invalid signal: length 0")
 
     if N == (k):
-        result = DFT(inSignal,s)
+        result = DFT(inSignal, s)
     else:
         w = np.exp(complex(0, s * 2 * np.pi / N))
         diag_e_a = np.diag(np.full(int(N / 2), w) ** np.arange(N / 2))
 
-        inSignal_e_hat = FFT_CT_base(inSignal[::2],k)
-        inSignal_o_hat = FFT_CT_base(inSignal[1::2],k)
+        inSignal_e_hat = FFT_CT_base(inSignal[::2], k, s)
+        inSignal_o_hat = FFT_CT_base(inSignal[1::2], s)
 
         result[0: int(N / 2)] = inSignal_e_hat + diag_e_a @ inSignal_o_hat
         result[int(N / 2): N] = inSignal_e_hat - diag_e_a @ inSignal_o_hat
 
     return result
+
+
+def compress(Image, p):
+    """
+
+    :param Image: 2D array represnting an image
+    :param p: percentage of compression
+    :return: the compressed image
+    """
+    fft = FFT_CT2D(Image)
+    fft_sorted = np.sort(np.abs(fft.reshape(-1)))
+    thresh = fft_sorted[int(np.floor((1 - p) * len(fft_sorted)))]
+    ind = np.abs(fft) > thresh
+    return iFFT_CT2D(fft * ind).real
+    
 
 def first():
     print("Validation Tests")
@@ -203,6 +217,8 @@ def first():
     except Exception as e:
         print(e)
     print("__________________________")
+
+
 def second():
     print("\nSECOND TEST")
     print("__________________________")
@@ -224,6 +240,8 @@ def second():
     print(np.allclose(fft, npfft))
 
     print("__________________________")
+
+
 def third():
     print("\nTHIRD TEST")
     print("__________________________")
@@ -236,7 +254,10 @@ def third():
     print(np.allclose(FFT_CT2D(testVector_2D), np.fft.fft2(testVector_2D)))
     print("Is FFT_CT2D equal to DFT2D?")
     print(np.allclose(FFT_CT2D(testVector_2D), DFT2D(testVector_2D)))
+    print(np.allclose(iFFT_CT2D(FFT_CT2D(testVector_2D)), testVector_2D))
     print("__________________________")
+
+
 def fourfth():
     print("\nFOURTH TEST")
     print("__________________________")
@@ -283,6 +304,8 @@ def fourfth():
     print("Average Time FFT NP: " + str(averagefftnp))
     print("Average Time DFT:" + str(averageDFT))
     print("__________________________")
+
+
 def fifth():
     print("\nFIFTH TEST")
     print("__________________________")
@@ -312,6 +335,7 @@ def fifth():
             length = length + 1
         averagetimes[base] = totalaverage
     print(averagetimes)
+    
 def ourgraph():
     bench_CT_result = {}
     bench_oldDFT_result = {}
@@ -338,29 +362,38 @@ def ourgraph():
     plt.ylabel("Time taken (seconds)")
     plt.show()
 
+
 def application():
+    # https://e2eml.school/convert_rgb_to_grayscale.html
     image = np.asarray(Image.open('Koala.jpg'))  # Import the image
 
-    # https://stackoverflow.com/questions/58992619/display-red-channel-of-image-with-numpy-and-matplotlib-only
-    redFFT = np.zeros(image.shape, np.uint8)
-    redFFT = FFT_CT2D(image[:, :, 0])
-    blueFFT = FFT_CT2D(image[:, :, 1])
-    greenFFT = FFT_CT2D(image[:, :, 2])
+    grayscale = np.dot(image[..., :3], [0.2989, 0.5870, 0.1140]) / 255  # Get the Grayscale version of the image
+    # Save the greyscale image to chekc its size and to make sure the compression is not impacted by the "imsave" method
+    plt.imsave('GreyKoala.jpg', grayscale)
+    size = os.path.getsize('GreyKoala.jpg') / 1000  # Get the size of the original image in kilobytes
 
-    # # Load test data from file
-    # image = None
-    # with open('A3-test-data.npy', 'rb') as f:
-    #    image = np.load(f)
-    # print(image)
+    print(np.allclose(iFFT_CT2D(FFT_CT2D(grayscale)), grayscale))
 
     cmap = plt.get_cmap('gray')
-    _, plots = plt.subplots(2, 1, figsize=(10, 7))
+    _, plots = plt.subplots(3, 2, figsize=(10, 8))
     plt.setp(plots, xticks=[], yticks=[])
-    plots[0].set_title('input image', size=8)
-    plots[0].imshow(image, cmap, vmin=0, vmax=1)
-    plots[1].set_title('red input image', size=8)
-    plots[1].imshow(redFFT / 255, cmap, vmin=0, vmax=1)
-    plt.show()  # this is a blocking call; kill the plotting window to continue execution
+    plots[0][0].set_title("Input image, size={}KB".format(size), size=10)
+    plots[0][0].imshow(image, cmap, vmin=0, vmax=1)
+    compression_percentage = [0.7, 0.2, 0.1, 0.05, 0.002]
+    count1 = 1
+    count2 = 0
+
+    for j in compression_percentage:
+        compressed = compress(grayscale, j)
+        plt.imsave('compressed.jpg', compressed)  # Save the compressed image in the current package to get its size
+        size = os.path.getsize('compressed.jpg') / 1000  # Get the size of the compressed image in kilobytes
+        plots[count1][count2].set_title("{}% compressed, size={}KB".format(100*j, size), size=10)
+        plots[count1][count2].imshow(compressed, cmap,  vmin=0, vmax=1)
+        count1 += 1
+        if count1 == 3:
+            count1 = 0
+            count2 += 1
+    plt.show()
 
 if __name__ == "__main__":
     #first()
@@ -369,16 +402,11 @@ if __name__ == "__main__":
 
     #third()
 
-    fourfth()
+    # fourfth()
 
     #fifth()
 
     #Create the graph
-    ourgraph()
-
-
-    # TODO: Application
-    #application()
-
-
-
+    # ourgraph()
+    
+    application()
