@@ -174,7 +174,7 @@ def FFT_CT(inSignal, s: int = -1):
         return result
 
 
-def FFT(inSignal, base, s: int = -1):
+def FFT_CT_Base(inSignal, base, s: int = -1):
     """
     Function generating the FFT of the given signal using the Cooley-Tukey Algorithm.
     This algorithm runs faster than the previously implemented DFT algorithm because it
@@ -209,8 +209,8 @@ def FFT(inSignal, base, s: int = -1):
         # Separate the signal in two signals.
         # One containing the even indexed values and the other the odd indexed values.
         # We modified these two lines from the FFT_CT() function to call FFT() function instead.
-        inSignal_e_hat = FFT(inSignal[::2], base, s)
-        inSignal_o_hat = FFT(inSignal[1::2], base, s)
+        inSignal_e_hat = FFT_CT_Base(inSignal[::2], base, s)
+        inSignal_o_hat = FFT_CT_Base(inSignal[1::2], base, s)
 
         # Here, we implemented our FFT differently from the instruction of the project.
         # Instead of forming the diag(e_a_hat) and diag(e_b_hat) diagnoal matrices, we generate a 1D vector containing
@@ -225,9 +225,29 @@ def FFT(inSignal, base, s: int = -1):
         return result
 
 
+def FFT(inSignal, s: int = -1):
+    """
+    Function generating the FFT of the given signal using the Cooley-Tukey Algorithm.
+    This algorithm runs faster than the previously implemented DFT algorithm because it
+    separates the given signal in two even and odd parts. It then recursively calls itself until the base case is met.
+
+    This function is different from the FFT_CT() function because it has a different base case that we determined
+    in the tests available in the main method. This base case is 2^5=32, the function will call the dft algorithm
+     for all signal of length less than or equal to 32 passed in this function.
+
+    :param inSignal: 1D (sampled) input signal numpy array with a power of 2 length
+    :param s: sign parameter with default value -1 for the FFT vs. iFFT setting
+    :return: returns the FFT of the input signal
+
+    Authors: Enzo Benoit-Jeannin and Thomas Dormart
+    """
+    return FFT_CT_Base(inSignal, 2 ** 5, s)
+
+
 def iFFT_CT(inSignal):
     """
-    Function generating the inverse FFT of the given signal using the Cooley-Tukey ALgorithm
+    Function generating the inverse FFT of the given signal using the Cooley-Tukey ALgorithm.
+    This uses the FFT_CT function (with a base case of 1).
     :param inSignal: complex-valued (sampled) 1D DFT input numpy array
     :return: the iFFT of the input signal
     """
@@ -240,7 +260,8 @@ def iFFT_CT(inSignal):
 
 def FFT_CT2D(inSignal2D, s: int = -1):
     """
-    Function generating the 2-Dimensional FFT of the given 2D signal using the Cooley-Tukey Algorithm we implemented
+    Function generating the 2-Dimensional FFT of the given 2D signal using the Cooley-Tukey Algorithm we implemented.
+    This uses the FFT_CT function (with a base case of 1).
     :param inSignal2D: 2D (sampled) input signal numpy array
     :param s: sign parameter with default value -1 for the FFT vs. iFFT setting
     :return: the 2D DFT of the input signal
@@ -262,7 +283,8 @@ def FFT_CT2D(inSignal2D, s: int = -1):
 
 def iFFT_CT2D(inSignal2D):
     """
-    Function generating the inverse 2-Dimensional FFT of the given 2D signal using the Cooley-Tukey Algorithm we implemented
+    Function generating the inverse 2-Dimensional FFT of the given 2D signal using the Cooley-Tukey Algorithm we
+    implemented. This uses the FFT_CT function (with a base case of 1).
     :param inSignal2D: complex-valued (sampled) 2D DFT input array.
     :return: the generated iDFT2D given the input signal.
     """
@@ -273,46 +295,85 @@ def iFFT_CT2D(inSignal2D):
     return 1 / N ** 2 * FFT_CT2D(inSignal2D, 1)
 
 
-def iFFT_CT_base(inSignal):
+def iFFT(inSignal):
     """
-    Function generating the inverse FFT of the given signal using the Cooley-Tukey ALgorithm
-    :param inSignal: complex-valued (sampled) 1D DFT input numpy array
+    Function generating the inverse FFT of the given signal using the Cooley-Tukey ALgorithm.
+    This uses the FFT function (with a base case different from 1).
+    :param inSignal: complex-valued (sampled) 1D FFT input numpy array
     :return: the iFFT of the input signal
     """
     N = inSignal.shape[0]  # N is the length of the input
     # The iFFT is the inverse fast fourier transform
     # and it's just the FFT of the same signal, with a change of sign for s
     # multiplied by 1 / N
-    return 1 / N * FFT_CT_base(inSignal, 2 ** 5, 1)
+    return 1 / N * FFT(inSignal, 1)
 
 
-def FFT_CT2D_base(inSignal2D, s: int = -1):
+def FFT2D(inSignal2D, s: int = -1):
     """
-    Function generating the 2-Dimensional FFT of the given 2D signal using the Cooley-Tukey Algorithm we implemented
+    Function generating the 2-Dimensional FFT of the given 2D signal using the Cooley-Tukey Algorithm we implemented.
+    This uses the FFT function (with a base case different from 1).
     :param inSignal2D: 2D (sampled) input signal numpy array
     :param s: sign parameter with default value -1 for the FFT vs. iFFT setting
-    :return: the 2D DFT of the input signal
+    :return: the 2D FFT of the input signal
     """
-    return np.transpose(FFT_CT_base(np.transpose(FFT_CT_base(inSignal2D, 2 ** 5, s)), 2 ** 5, s))
+
+    # return FFT_CT(FFT_CT(np.transpose(inSignal2D)).T, s)
+    result = np.zeros(inSignal2D.shape, dtype=complex)
+    result_col = np.zeros(inSignal2D.shape, dtype=complex)
+
+    i = 0
+    for col in inSignal2D.T:
+        result_col[i] = FFT(col, s)
+        i += 1
+    i = 0
+    for row in result_col.T:
+        result[i] = FFT(row, s)
+        i += 1
+    return result
+
+
+def iFFT2D(inSignal2D):
+    """
+    Function generating the inverse 2-Dimensional FFT of the given 2D signal using the Cooley-Tukey Algorithm we
+    implemented. This uses the FFT function (with a base case different from 1)
+    :param inSignal2D: complex-valued (sampled) 2D FFT input array.
+    :return: the generated iFFT2D given the input signal.
+    """
+    N = inSignal2D.shape[0]  # N is the length of the input
+    # The iFFT2D is the 2D inverse fast fourier transform
+    # and it's just the 2D FFT of the same signal, with a change of sign for s
+    # multiplied by 1 / N^2
+    return 1 / N ** 2 * FFT2D(inSignal2D, 1)
 
 
 def compress(Image, p):
     """
-
-    :param Image: 2D array representing an image
+    Function to compress an image. It first uses our fft subroutine to get the fourier transform of the image.
+    Then, we set to 0 the lowest frequencies in the fourier domain of the image depending on the given argument p. We
+    then use the inverse FFT subroutine we implemented to obtain the final compressed image.
+    :param Image: 2D numpy array representing an image
     :param p: percentage of compression
-    :return: the compressed image
+    :return: the compressed image in the form of a 2D numpy array
+
+    Example
+    _______
+    If p is 0.5, we
     """
-    fft = FFT_CT2D(Image)
-    fft_sorted = np.sort(np.abs(fft.reshape(-1)))
-    thresh = fft_sorted[int(np.floor((1 - p) * len(fft_sorted)))]
+
+    fft = FFT2D(Image)  # Get the fft of the image
+
+    fft_sorted = np.sort(np.abs(fft.reshape(-1)))   # Sort the frequencies of the obtained fft (in absolute value)
+
+    thresh = fft_sorted[int(np.floor((1 - p) * len(fft_sorted)))]   # Determine the
+
     ind = np.abs(fft) > thresh
-    return iFFT_CT2D(fft * ind).real
+
+    return iFFT2D(fft * ind).real
 
 
 def compress_DFT(Image, p):
     """
-
     :param Image: 2D array representing an image
     :param p: percentage of compression
     :return: the compressed image
@@ -344,7 +405,8 @@ def second():
     print("\nSECOND TEST")
     print("__________________________")
     print(
-        "Description: Should print TRUE if the the result found by our FFT is the same as the one computed using our DFT and numpy's FFT, else it prints FALSE")
+        "Description: Should print TRUE if the the result found by our FFT is the same as the one computed using our "
+        "DFT and numpy's FFT, else it prints FALSE")
     print("The test is performed on a 1D 2^14 long array")
     print("Expected Output: Should return true for both methods")
     print("Output:")
@@ -354,7 +416,7 @@ def second():
     fft = FFT_CT(signal)
     dft = DFT(signal)
     npfft = np.fft.fft(signal)
-    fftbase = FFT_CT_base(signal, 2 ** 5, -1)
+    fftbase = FFT(signal, 2 ** 5, -1)
 
     print("Is FFT_CT equal to DFT ?")
     print(np.allclose(fft, dft))
@@ -377,7 +439,8 @@ def third():
     print("\nTHIRD TEST")
     print("__________________________")
     print(
-        "Description: Should print TRUE if the the result found by our FFT is the same as the one computed using our DFT, else it prints FALSE")
+        "Description: Should print TRUE if the the result found by our FFT is the same as the one computed using our "
+        "DFT, else it prints FALSE")
     print("The test is performed on a 2D 2^12 long array")
     print("Output:")
     testVector_2D = np.random.rand(2 ** 12, 2 ** 12)
@@ -415,7 +478,7 @@ def fourth():
     ifft = iFFT_CT(signal)
     idft = iDFT(signal)
     inpfft = np.fft.ifft(signal)
-    ifftbase = iFFT_CT_base(signal)
+    ifftbase = iFFT(signal)
     print("Is iFFT_CT equal to iDFT ?")
     print(np.allclose(ifft, idft))
 
@@ -476,7 +539,7 @@ def sixth():
             average = 0
             while i <= 30:  # Iterates a thousand time over an array of the same base case and the length of array
                 start_time = timeit.default_timer()
-                FFT_CT_base(signal, 2 ** base)
+                FFT_CT_Base(signal, 2 ** base)
                 average = average + (timeit.default_timer() - start_time)
                 i = i + 1
             average = float(average / (i - 1))
@@ -520,7 +583,7 @@ def seventh():
         # averageDFT = averageDFT + (timeit.default_timer() - start_time)
 
         start_time = timeit.default_timer()
-        FFT_CT_base(signal, 2 ** 5)
+        FFT(signal, 2 ** 5)
         # print("Time taken by FFT_CT_BASE:")
         # print(timeit.default_timer() - start_time)
         averagefftbase = averagefftbase + (timeit.default_timer() - start_time)
@@ -610,7 +673,7 @@ def ninth():
         # averageDFT = averageDFT + (timeit.default_timer() - start_time)
 
         start_time = timeit.default_timer()
-        iFFT_CT_base(signal)
+        iFFT(signal)
         # print("Time taken by FFT_CT_BASE:")
         # print(timeit.default_timer() - start_time)
         averagefftbase = averagefftbase + (timeit.default_timer() - start_time)
@@ -707,11 +770,11 @@ def ourgraph2D():
     bench_2DFFT_result = {}
     bench_2DDFT_result = {}
 
-    for N in (2 ** p for p in range(1, 10)):
+    for N in (2 ** p for p in range(0, 10)):
         signal = np.random.rand(N, N)
 
         start_time = timeit.default_timer()
-        fft = FFT_CT2D(signal)
+        fft = FFT2D(signal)
         bench_2DFFT_result[N] = timeit.default_timer() - start_time
 
         start_time = timeit.default_timer()
@@ -727,7 +790,7 @@ def ourgraph2D():
     N, DFT_time = zip(*lists)  # unpack a list of pairs into two tuples
     plt.plot(N, DFT_time, label="DFT")
 
-    plt.title("Graph comparing the time efficiency of the 2DDFT and 2DFFT algorithm")
+    plt.title("Graph comparing the time efficiency of the DFT2D and FFT2D algorithm")
     plt.xlabel("Value of N (Size of the array)")
     plt.ylabel("Time taken (seconds)")
     plt.legend()
@@ -738,25 +801,26 @@ def ourgraphi2D():
     bench_i2DFFT_result = {}
     bench_i2DDFT_result = {}
 
-    for N in (2 ** p for p in range(0, 13)):
+    for N in (2 ** p for p in range(0, 10)):
         signal = np.random.rand(N, N)
         start_time = timeit.default_timer()
-        FFT_CT2D(signal)
+        fft = iFFT2D(signal)
         bench_i2DFFT_result[N] = timeit.default_timer() - start_time
 
         start_time = timeit.default_timer()
-        DFT2D(signal)
+        dft = iDFT2D(signal)
         bench_i2DDFT_result[N] = timeit.default_timer() - start_time
+        print(np.allclose(fft, np.fft.ifft2(signal)))
 
     lists = sorted(bench_i2DFFT_result.items())  # sorted by key, return a list of tuples
     N, FFT_time = zip(*lists)  # unpack a list of pairs into two tuples
-    plt.plot(N, FFT_time, label="FFT")
+    plt.plot(N, FFT_time, label="iFFT")
 
     lists = sorted(bench_i2DDFT_result.items())  # sorted by key, return a list of tuples
     N, DFT_time = zip(*lists)  # unpack a list of pairs into two tuples
-    plt.plot(N, DFT_time, label="DFT")
+    plt.plot(N, DFT_time, label="iDFT")
 
-    plt.title("Graph comparing the time efficiency of the i2DDFT and i2DFFT algorithm")
+    plt.title("Graph comparing the time efficiency of the iDFT2D and iFFT2D algorithm")
     plt.xlabel("Value of N (Size of the array)")
     plt.ylabel("Time taken (seconds)")
     plt.legend()
@@ -786,61 +850,25 @@ if __name__ == "__main__":
 
     # Create the graph
     # ourgraph()
-    ourgraph2D()
+    # ourgraph2D()
     # ourgraphi2D()
 
     # Application
-    print("The application of the FFT algorithm we chose consists of compressing a given image to reduce its size.")
-    print("This is done by taking the fast fourier transform of an input image (in grayscale) and by removing "
-          "(set to 0) the lowest frequencies of that fft depending on a threshold we specify. We then use the inverse "
-          "fft algorithm we wrote to go generate the compressed image.")
-    print("We defined a function named \"compress\" that takes as argument an image and the percentage of frequencies "
-          "to keep in the fast fourier transform. For instance, compress(imageTest, 0.7) will remove 30% of all the "
-          "frequencies in the fourier domain (only the lowest ones).")
-
-    print("\nFIRST APPLICATION TEST")
-    print("__________________________")
-    print("Description: This first application test will compress a koala image multiple times.")
-    print("Expected Output: The output should be a matplotlib plot, showing the input image and all 5 resulting "
-          "compressed images with their respective new sizes.")
-    print("Output:")
-
-    # https://e2eml.school/convert_rgb_to_grayscale.html
-    image = np.asarray(Image.open('Koala.jpg'))  # Import the image
-    grayscale = np.dot(image[..., :3], [0.2989, 0.5870, 0.1140]) / 255  # Get the Grayscale version of the image
-    # Save the greyscale image to check its size and to make sure the compression is not impacted by the "imsave" method
-    plt.imsave('GreyKoala.jpg', grayscale)
-    size = os.path.getsize('GreyKoala.jpg') / 1000  # Get the size of the original image in kilobytes
-
-    cmap = plt.get_cmap('gray')
-    _, plots = plt.subplots(3, 2, figsize=(10, 8))
-    plt.setp(plots, xticks=[], yticks=[])
-    plots[0][0].set_title("Input image, size={}KB".format(size), size=10)
-    plots[0][0].imshow(grayscale, cmap, vmin=0, vmax=1)
-    compression_percentage = [0.7, 0.2, 0.1, 0.05, 0.002]
-
-    count1 = 1
-    count2 = 0
-
-    for j in compression_percentage:
-        compressed = compress(grayscale, j)
-
-        plt.imsave('compressed.jpg', compressed)  # Save the compressed image in the current package to get its size
-        size = os.path.getsize('compressed.jpg') / 1000  # Get the size of the compressed image in kilobytes
-        plots[count1][count2].set_title("Compression removed {}% of input image\nNew size={}KB".format(100-100*j, size), size=10)
-        plots[count1][count2].imshow(compressed, cmap,  vmin=0, vmax=1)
-        count1 += 1
-        if count1 == 3:
-            count1 = 0
-            count2 += 1
-    plt.show()
-
-    # print("\nSECOND APPLICATION TEST")
+    # print("The application of the FFT algorithm we chose consists of compressing a given image to reduce its size.")
+    # print("This is done by taking the fast fourier transform of an input image (in grayscale) and by removing "
+    #       "(set to 0) the lowest frequencies of that fft depending on a threshold we specify. We then use the inverse "
+    #       "fft algorithm we wrote to go generate the compressed image.")
+    # print("We defined a function named \"compress\" that takes as argument an image and the percentage of frequencies "
+    #       "to keep in the fast fourier transform. For instance, compress(imageTest, 0.7) will remove 30% of all the "
+    #       "frequencies in the fourier domain (only the lowest ones).")
+    #
+    # print("\nFIRST APPLICATION TEST")
     # print("__________________________")
-    # print("Description: This second application tests the compress_DFT() method"
-    #       "of the same koala image.")
-    # print("Expected Output:")
-    # print("Output: ")
+    # print("Description: This first application test will compress a koala image multiple times.")
+    # print("Expected Output: The output should be a matplotlib plot, showing the input image and all 5 resulting "
+    #       "compressed images with their respective new sizes.")
+    # print("Output:")
+    #
     # # https://e2eml.school/convert_rgb_to_grayscale.html
     # image = np.asarray(Image.open('Koala.jpg'))  # Import the image
     # grayscale = np.dot(image[..., :3], [0.2989, 0.5870, 0.1140]) / 255  # Get the Grayscale version of the image
@@ -859,35 +887,71 @@ if __name__ == "__main__":
     # count2 = 0
     #
     # for j in compression_percentage:
-    #     compressed = compress_DFT(grayscale, j)
+    #     compressed = compress(grayscale, j)
+    #
     #     plt.imsave('compressed.jpg', compressed)  # Save the compressed image in the current package to get its size
     #     size = os.path.getsize('compressed.jpg') / 1000  # Get the size of the compressed image in kilobytes
-    #     plots[count1][count2].set_title(
-    #         "Compression removed {}% of input image\nNew size={}KB".format(100 - 100 * j, size), size=10)
-    #     plots[count1][count2].imshow(compressed, cmap, vmin=0, vmax=1)
+    #     plots[count1][count2].set_title("Compression removed {}% of input image\nNew size={}KB".format(100-100*j, size), size=10)
+    #     plots[count1][count2].imshow(compressed, cmap,  vmin=0, vmax=1)
     #     count1 += 1
     #     if count1 == 3:
     #         count1 = 0
     #         count2 += 1
     # plt.show()
 
+    print("\nSECOND APPLICATION TEST")
+    print("__________________________")
+    print("Description: This second application tests the compress_DFT() method"
+          "of the same koala image.")
+    print("Expected Output:")
+    print("Output: ")
+    # https://e2eml.school/convert_rgb_to_grayscale.html
+    image = np.asarray(Image.open('Koala.jpg'))  # Import the image
+    grayscale = np.dot(image[..., :3], [0.2989, 0.5870, 0.1140]) / 255  # Get the Grayscale version of the image
+    # Save the greyscale image to check its size and to make sure the compression is not impacted by the "imsave" method
+    plt.imsave('GreyKoala.jpg', grayscale)
+    size = os.path.getsize('GreyKoala.jpg') / 1000  # Get the size of the original image in kilobytes
+
+    cmap = plt.get_cmap('gray')
+    _, plots = plt.subplots(3, 2, figsize=(10, 8))
+    plt.setp(plots, xticks=[], yticks=[])
+    plots[0][0].set_title("Input image, size={}KB".format(size), size=10)
+    plots[0][0].imshow(grayscale, cmap, vmin=0, vmax=1)
+    compression_percentage = [0.7, 0.2, 0.1, 0.05, 0.002]
+
+    count1 = 1
+    count2 = 0
+
+    for j in compression_percentage:
+        compressed = compress_DFT(grayscale, j)
+        plt.imsave('compressed.jpg', compressed)  # Save the compressed image in the current package to get its size
+        size = os.path.getsize('compressed.jpg') / 1000  # Get the size of the compressed image in kilobytes
+        plots[count1][count2].set_title(
+            "Compression removed {}% of input image\nNew size={}KB".format(100 - 100 * j, size), size=10)
+        plots[count1][count2].imshow(compressed, cmap, vmin=0, vmax=1)
+        count1 += 1
+        if count1 == 3:
+            count1 = 0
+            count2 += 1
+    plt.show()
+    #
     # print("\nTHIRD APPLICATION TEST")
     # print("__________________________")
     # print("Description: This third application test will compare the dft and fft algorithms in the compression"
     #       "of the same koala image.")
     # print("Expected Output: Benchmark of 4 compressions of 4 different images comparing the DFT and FFT algorithms.")
     # print("Output: ")
-    #
-    # # Import all four images following the same procedure as in the firts test.
-    # # Convert RGB Pictures to greyscale, save them to check their size (which changed since we converted them to
-    # # greyscale).
+
+    # Import all four images following the same procedure as in the firts test.
+    # Convert RGB Pictures to greyscale, save them to check their size (which changed since we converted them to
+    # greyscale).
     # image_VieuxLyon = np.asarray(Image.open('VieuxLyon.jpg'))  # Import the image
     # grayscale_VieuxLyon = np.dot(image_VieuxLyon[..., :3],
     #                              [0.2989, 0.5870, 0.1140]) / 255  # Get the Grayscale version of the image
     # # Save the greyscale image to check its size and to make sure the compression is not impacted by the "imsave" method
     # plt.imsave('VieuxLyon.jpg', grayscale_VieuxLyon, cmap='gray')
     # size_VieuxLyon = os.path.getsize('VieuxLyon.jpg') / 1000  # Get the size of the original image in kilobytes
-    #
+
     # image_MoulinRouge = np.asarray(Image.open('MoulinRouge.jpg'))  # Import the image
     # grayscale_MoulinRouge = np.dot(image_MoulinRouge[..., :3],
     #                                [0.2989, 0.5870, 0.1140]) / 255  # Get the Grayscale version of the image
@@ -913,8 +977,8 @@ if __name__ == "__main__":
     # cmap = plt.get_cmap('gray')
     # _, plots = plt.subplots(4, 2, figsize=(10, 8))
     # plt.setp(plots, xticks=[], yticks=[])
-    # plots[0][0].set_title("Input 4096x4096 image, size={}KB".format(size_VieuxLyon), size=10)
-    # plots[0][0].imshow(grayscale_VieuxLyon, cmap, vmin=0, vmax=1)
+    # # plots[0][0].set_title("Input 4096x4096 image, size={}KB".format(size_VieuxLyon), size=10)
+    # # plots[0][0].imshow(grayscale_VieuxLyon, cmap, vmin=0, vmax=1)
     # plots[1][0].set_title("Input 2048x2048 image, size={}KB".format(size_MoulinRouge), size=10)
     # plots[1][0].imshow(grayscale_MoulinRouge, cmap, vmin=0, vmax=1)
     # plots[2][0].set_title("Input 1024x1024 image, size={}KB".format(size_Koala), size=10)
@@ -925,12 +989,12 @@ if __name__ == "__main__":
     # # Variables to keep track of the time taken for each compression for both DFT and FFT algorithm
     # bench_FFT_result = {}
     # bench_DFT_result = {}
-    #
+
     # # 4096x4096 picture compression using DFT
     # start_time = timeit.default_timer()
     # compressed = compress_DFT(grayscale_VieuxLyon, 0.009)
     # bench_DFT_result[4096] = timeit.default_timer() - start_time
-    #
+
     # # 4096x4096 picture compression using FFT
     # start_time = timeit.default_timer()
     # compressed = compress(grayscale_VieuxLyon, 0.009)
@@ -940,8 +1004,8 @@ if __name__ == "__main__":
     # plt.imsave('compressed.jpg', compressed, cmap='gray')
     # plots[0][1].set_title("Compression removed 99,1% of input image", size=10)
     # plots[0][1].imshow(compressed, cmap, vmin=0, vmax=1)
-    #
-    # # 2048x2048 picture compression using FFT
+
+    # 2048x2048 picture compression using FFT
     # start_time = timeit.default_timer()
     # compressed = compress(grayscale_MoulinRouge, 0.009)
     # bench_FFT_result[2048] = timeit.default_timer() - start_time
