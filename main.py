@@ -24,7 +24,7 @@ def DFT(inSignal, s: int = -1):
     :param s: sign parameter with default value -1 for the DFT vs. iDFT setting
     :return: returns the DFT of the input signal
 
-    Author: Enzo Benoit-Jeannin for Assignment 4
+    Authors: Enzo Benoit-Jeannin and Thomas Dormart
     """
 
     y = np.zeros(inSignal.shape, dtype=complex)
@@ -51,8 +51,9 @@ def iDFT(inSignal):
     :param inSignal: complex-valued (sampled) 1D DFT input numpy array.
     :return: returns the iDFT of the input signal.
 
-    Author: Enzo Benoit-Jeannin for Assignment 4
+    Authors: Enzo Benoit-Jeannin and Thomas Dormart
     """
+
     N = inSignal.shape[0]  # N is the length of the input
 
     # The iDFT is the inverse discrete fourier transform
@@ -72,13 +73,14 @@ def DFT2D(inSignal2D, s: int = -1):
 
     Authors: Enzo Benoit-Jeannin and Thomas Dormart
     """
+
     # Create arrays to store the results of performing DFT on columns and the final result
     result = np.zeros(inSignal2D.shape, dtype=complex)
     result_col = np.zeros(inSignal2D.shape, dtype=complex)
 
     i = 0   # counter variable
     # Iterate through all the columns in the given signal (by taking its transpose)
-    # Compute the FFT along all these columns and store it in a temporary array result_col
+    # Compute the DFT along all these columns and store it in a temporary array result_col
     for col in inSignal2D.T:
         result_col[i] = DFT(col, s)
         i += 1
@@ -87,7 +89,7 @@ def DFT2D(inSignal2D, s: int = -1):
     i = 0   # counter variable
 
     # Iterate through all the rows of the temporary array
-    # Compute the FFT along all these rows and store it in a the array of the final result
+    # Compute the DFT along all these rows and store it in a the array of the final result
     for row in result_col:
         result[i] = DFT(row, s)
         i += 1
@@ -100,65 +102,56 @@ def iDFT2D(inSignal2D):
     Function to generate the inverse 2-Dimensional discrete Fourier transform of the input signal.
     :param inSignal2D: complex-valued (sampled) 2D DFT input array.
     :return: the generated iDFT2D given the input signal.
+
+    Authors: Enzo Benoit-Jeannin and Thomas Dormart
     """
+
     N = inSignal2D.shape[0]  # N is the length of the input
     # The iDFT2D is the 2D inverse discrete fourier transform
     # and it's just the 2D DFT of the same signal, with a change of sign for s
     # multiplied by 1 / N^2
-    # This method avoids code duplication
+
     return (1 / N ** 2) * DFT2D(inSignal2D, 1)
 
 
-# @profile
 def FFT_CT(inSignal, s: int = -1):
     """
-    Function generating the FFT of the given signal using the Cooley-Tukey ALgorithm
-    :param inSignal: 1D (sampled) input signal numpy array
-    :param s: sign parameter with default value -1 for the DFT vs. iDFT setting
-    :return: returns the DFT of the input signal
+    Function generating the FFT of the given signal using the Cooley-Tukey Algorithm.
+    This algorithm runs faster than the previously implemnted DFT algorithm because it
+    separates the given signal in two even and odd parts. It then recursively calls itself until the base case is met.
+    :param inSignal: 1D (sampled) input signal numpy array with a power of 2 length
+    :param s: sign parameter with default value -1 for the FFT vs. iFFT setting
+    :return: returns the FFT of the input signal
+
+    Authors: Enzo Benoit-Jeannin and Thomas Dormart
     """
-    # result = np.zeros(inSignal.shape, dtype=complex)
-    #
-    # N = inSignal.shape[0]
-    #
-    # if N == 0:
-    #     raise ValueError("Invalid signal: length 0")
-    #
-    # if N == 1:
-    #     result = inSignal
-    # else:
-    #
-    #     w = np.exp(complex(0, s * 2 * np.pi / N))
-    #     diag_e_a = np.diag(np.full(int(N / 2), w) ** np.arange(N / 2))
-    #
-    #     inSignal_e_hat = FFT_CT(inSignal[::2], s)
-    #     inSignal_o_hat = FFT_CT(inSignal[1::2], s)
-    #
-    #     result[0: int(N / 2)] = inSignal_e_hat + diag_e_a @ inSignal_o_hat
-    #     result[int(N / 2): N] = inSignal_e_hat - diag_e_a @ inSignal_o_hat
-    #
-    # return result
 
     N = inSignal.shape[0]   # Get the length of the signal
-    # Check if the length is not 0 and is a power of two
+    # Check if the length is not 0 and is a power of two.
     if N == 0:
         raise ValueError("Invalid signal: length 0")
     # Check for the base case of length 1 before checking for the power of 2.
-    # If the length of the input signal is one, we simply return it
+    # If the length of the input signal is one, we simply return it.
     elif N == 1:
         return inSignal
+    # If the length is not a power of two we throw an error.
     elif N % 2 != 0:
         raise ValueError("Invalid signal: length is not a power of 2")
     else:
+        result = np.zeros(inSignal.shape, dtype=complex)
         # Separate the signal in two signals.
         # One containing the even indexed values and the other the odd indexed values.
         inSignal_e_hat = FFT_CT(inSignal[::2], s)
         inSignal_o_hat = FFT_CT(inSignal[1::2], s)
 
+        # Here, we implemented our FFT differently from the instruction of the project.
+        # Instead of
+        w = np.exp(s * 2j * np.pi * np.arange(N) / N)
 
-        diag_e_a = np.exp(s * 2j * np.pi * np.arange(N) / N)
+        result[0: int(N / 2)] = inSignal_e_hat + w[:int(N / 2)] * inSignal_o_hat
+        result[int(N / 2): N] = inSignal_e_hat + w[int(N / 2):] * inSignal_o_hat
 
-        return np.concatenate([inSignal_e_hat + diag_e_a[:int(N / 2)] * inSignal_o_hat, inSignal_e_hat + diag_e_a[int(N / 2):] * inSignal_o_hat])
+        return result
 
 
 def iFFT_CT(inSignal):
@@ -752,7 +745,7 @@ if __name__ == "__main__":
 
     # Create the graph
     # ourgraph()
-    # ourgraph2D()
+    ourgraph2D()
     # ourgraphi2D()
 
     # Application
