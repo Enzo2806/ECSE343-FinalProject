@@ -884,68 +884,59 @@ def app_fourth():
     bench_FFT_result = {}
     bench_DFT_result = {}
 
-    # 4096x4096 picture compression using DFT
-    start_time = timeit.default_timer()
-    compressed = compress_DFT(grayscale_VieuxLyon, 0.009)
-    bench_DFT_result[4096] = timeit.default_timer() - start_time
-
     # 4096x4096 picture compression using FFT
     start_time = timeit.default_timer()
-    compressed = compress(grayscale_VieuxLyon, 0.009)
+    compressed_VieuxLyon = compress(grayscale_VieuxLyon, 0.009)
     bench_FFT_result[4096] = timeit.default_timer() - start_time
-
     # Save the compressed image in the current package to get its size
-    plt.imsave('compressed.jpg', compressed, cmap=cmap)
+    plt.imsave('compressed_VieuxLyon.jpg', compressed_VieuxLyon, cmap=cmap)
     plots[0][1].set_title("Compression removed 99,1% of input image", size=10)
-    plots[0][1].imshow(compressed, cmap, vmin=0, vmax=1)
+    plots[0][1].imshow(compressed_VieuxLyon, cmap, vmin=0, vmax=1)
+
+    # 4096x4096 picture compression using DFT
+    start_time = timeit.default_timer()
+    compress_DFT(grayscale_VieuxLyon, 0.009)
+    bench_DFT_result[4096] = timeit.default_timer() - start_time
 
     # 2048x2048 picture compression using FFT
     start_time = timeit.default_timer()
-    compressed = compress(grayscale_MoulinRouge, 0.009)
+    compressed_MoulinRouge = compress(grayscale_MoulinRouge, 0.009)
     bench_FFT_result[2048] = timeit.default_timer() - start_time
     # Save the compressed image in the current package to get its size
-    plt.imsave('compressed.jpg', compressed, cmap=cmap)
-    size = os.path.getsize('compressed.jpg') / 1000  # Get the size of the compressed image in kilobytes
-    plots[1][1].imshow(compressed, cmap, vmin=0, vmax=1)
+    plt.imsave('compressed_MoulinRouge.jpg', compressed_MoulinRouge, cmap=cmap)
+    plots[1][1].imshow(compressed_MoulinRouge, cmap, vmin=0, vmax=1)
 
     # 2048x2048 picture compression using DFT
     start_time = timeit.default_timer()
-    compressed = compress_DFT(grayscale_MoulinRouge, 0.009)
+    compress_DFT(grayscale_MoulinRouge, 0.009)
     bench_DFT_result[2048] = timeit.default_timer() - start_time
 
     # 1024x1024 picture compression using FFT
     start_time = timeit.default_timer()
-    compressed = compress(grayscale_Koala, 0.009)
+    compressed_Koala = compress(grayscale_Koala, 0.009)
     bench_FFT_result[1024] = timeit.default_timer() - start_time
     # Save the compressed image in the current package to get its size
-    plt.imsave('compressed.jpg', compressed, cmap=cmap)
-    size = os.path.getsize('compressed.jpg') / 1000  # Get the size of the compressed image in kilobytes
-    plots[2][1].imshow(compressed, cmap, vmin=0, vmax=1)
+    plt.imsave('compressed_Koala.jpg', compressed_Koala, cmap=cmap)
+    plots[2][1].imshow(compressed_Koala, cmap, vmin=0, vmax=1)
 
     # 1024x1024 picture compression using DFT
     start_time = timeit.default_timer()
-    compressed = compress_DFT(grayscale_Koala, 0.009)
+    compress_DFT(grayscale_Koala, 0.009)
     bench_DFT_result[1024] = timeit.default_timer() - start_time
 
     # 512x512 picture compression using FFT
     start_time = timeit.default_timer()
-    compressed = compress(grayscale_Fourviere, 0.009)
+    compressed_Fourviere = compress(grayscale_Fourviere, 0.009)
     bench_FFT_result[512] = timeit.default_timer() - start_time
     # Save the compressed image in the current package to get its size
-    plt.imsave('compressed.jpg', compressed, cmap='gray')
-    size = os.path.getsize('compressed.jpg') / 1000  # Get the size of the compressed image in kilobytes
-    plots[3][1].imshow(compressed, cmap, vmin=0, vmax=1)
+    plt.imsave('compressed_Fourviere.jpg', compressed_Fourviere, cmap='gray')
+    plots[3][1].imshow(compressed_Fourviere, cmap, vmin=0, vmax=1)
 
     # 1024x1024 picture compression using DFT
     start_time = timeit.default_timer()
-    compressed = compress_DFT(grayscale_Fourviere, 0.009)
+    compress_DFT(grayscale_Fourviere, 0.009)
     bench_DFT_result[512] = timeit.default_timer() - start_time
     plt.show()
-
-    print("FFT")
-    print(bench_FFT_result)
-    print("DFT")
-    print(bench_DFT_result)
 
     lists = sorted(bench_FFT_result.items())  # sorted by key, return a list of tuples
     N, FFT_time = zip(*lists)  # unpack a list of pairs into two tuples
