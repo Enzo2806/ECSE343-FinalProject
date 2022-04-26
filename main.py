@@ -466,8 +466,12 @@ def third(function1=FFT_CT, function2=DFT, function3=np.fft.fft):
     comp_npfft = np.array([], bool)
 
     # For multiple arrays of different length (all power of 2)
-    for N in (2 ** p for p in range(1, 13)):
-        signal = np.random.rand(N)  # random signal
+    for N in (2 ** p for p in range(0, 13)):
+        if name1 == "FFT" or name1 == "FFT_CT" or name1 == "iFFT":
+            signal = np.random.rand(N)  # random signal of 1 dimension
+        else:
+            signal = np.random.rand(N, N)  # random signal of 2 dimension
+
         fft = function1(signal)    # Get fft
         dft = function2(signal)       # Get dft
         npfft = function3(signal)  # Get numpy fft
@@ -484,9 +488,10 @@ def fourth():
     print("\nFOURTH TEST")
     print("__________________________")
     print("Description: This test benchmarks and compares our FFT_CT function with the naive DFT function.")
-    print("The test is performed only once on multiple arrays of different length. We save the time taken per ")
-    print("algorithm and per array length in a python dictionary. We then generate a plot from it.")
-    print("Expected Output: Should plot two curves for each algorithm: FFT and DFT. It will show the time taken")
+    print("The test computes a same FFT/DFT 30 times on each array and saves their corresponding average times in ")
+    print("a python dictionary. We vary the length of the array we apply our algorithms to in order to show the FFT")
+    print("is more efficient on larger arrays compare to the DFT algorithm. We then generate a plot from it.")
+    print("Expected Output: Should plot two curves for each algorithm: FFT/DFT. It will show the average time taken")
     print("depending on the size of the array.")
     print("Output:")
 
@@ -496,14 +501,19 @@ def fourth():
 
     # Iterate through different array length, all of length of power of 2
     for N in (2 ** p for p in range(0, 13)):
-        signal = np.random.rand(N)      # generate random signal
-        start_time = timeit.default_timer()     # Start timer
-        FFT_CT(signal)        # compute fft ( call the FFT_CT function, later tests will call a different function)
-        bench_FFT_CT_result[N] = timeit.default_timer() - start_time     # Stop timer
+        signal = np.random.rand(N)  # generate random signal
+        average_FFT = 0
+        average_DFT = 0
+        for j in range(30):
+            start_time = timeit.default_timer()     # Start timer
+            FFT_CT(signal)        # compute fft ( call the FFT_CT function, later tests will call a different function)
+            average_FFT += timeit.default_timer() - start_time     # Stop timer
 
-        start_time = timeit.default_timer()     # Start timer
-        DFT(signal)         # compute dft
-        bench_DFT_result[N] = timeit.default_timer() - start_time       # Stop timer
+            start_time = timeit.default_timer()     # Start timer
+            DFT(signal)         # compute dft
+            average_DFT += timeit.default_timer() - start_time       # Stop timer
+        bench_FFT_CT_result[N] = average_FFT / j
+        bench_DFT_result[N] = average_DFT / j
 
     lists = sorted(bench_FFT_CT_result.items())  # sorted by key, return a list of tuples
     N, FFT_CT_time = zip(*lists)  # unpack a list of pairs into two tuples
@@ -526,12 +536,12 @@ def fifth():
     print("Description: This test should determine which base case is the best for our recursion to compute the fft.")
     print("The test is performed on 1D array's ranging from 2^1 to 2^10, the average is made on testing each ")
     print("base case thirty times. From our graph in test 4, we expect the best base case to be between 2^0 and 2^9")
-    print("so we will try base cases in this range. This test might take several minutes to finish even on HEDT")
-    print("Expected Output: Should return the average time to compute FFT with each base case ")
-    print("along with the best base case to use.")
+    print("so we will try base cases in this range. This test might take several minutes to finish.")
+    print("Expected Output: Should return the average time to compute an FFT of arrays of different length ")
+    print("corresponding to each base case. It should also return the best base case to use.")
     print("Output:")
 
-    results = np.zeros(10)
+    results = np.zeros(10)      # Initialize array to store results in
 
     # For all possible base cases (iterate through the possible power of 2)
     # We know thanks to the previous test that the fft algorithm is always faster than the dft for any signal of length
@@ -564,15 +574,22 @@ def fifth():
 
         results[base] = totalAverage_base
 
-    print("Resulting array is:")
-    print(results)
+    steps = 2 ** np.arange(10)        # Array to keep track of bins for the histogram.
+    steps = np.concatenate([[0], steps])
+    print(steps)
     best = np.argmin(results)   # Find index of minimum total average time to find best base case
+
+    plt.hist(results, bins="auto")
+    plt.title("Histogram showing average time taken for each base case when \napplied to arrays of different length. "
+              "The best base case is: " + str(2 ** best))
+    plt.show()
     print("The base case with the best performance on average is: " + str(2 ** best))
     print("The rest of the program will now use the function called FFT() which uses this base case of "+str(2 ** best))
 
 
 def sixth(function1=FFT_CT, function2=DFT, function3=FFT):
-    # This test can be reused to compare any 3 functions returning an a DFT or an iDFT.
+    # This test can be reused to compare any 3 functions returning an a fourier transform or an inverse
+    # fourier transform.
     name1 = function1.__name__
     name2 = function2.__name__
     name3 = function3.__name__
@@ -594,7 +611,11 @@ def sixth(function1=FFT_CT, function2=DFT, function3=FFT):
 
     # Iterate through different array length, all of length of power of 2
     for N in (2 ** p for p in range(0, 13)):
-        signal = np.random.rand(N)      # generate random signal
+        if name1 == "FFT" or name1 == "FFT_CT" or name1 == "iFFT":
+            signal = np.random.rand(N)      # generate random signal of 1 dimension
+        else:
+            signal = np.random.rand(N, N)      # generate random signal of 2 dimension
+
         start_time = timeit.default_timer()     # Start timer
         function1(signal)        # compute fft using FFT_CT function (base case of 1)
         bench_FFT_CT_result[N] = timeit.default_timer() - start_time     # Stop timer
@@ -643,66 +664,69 @@ def ninth():
     print("\nNINTH TEST")
     sixth(iFFT_CT, iDFT, iFFT)
 
-def sixth2():
-    print("\nFOURTH TEST")
+
+def tenth(function1=FFT, function2=iFFT):
+    name1 = function1.__name__
+    name2 = function2.__name__
+    if name1 == "FFT":
+        print("\nTENTH TEST")
     print("__________________________")
-    print("Description: Should print TRUE if the the result found by our FFT is the same as the one computed using our")
-    print("DFT, else it prints FALSE")
-    print("The test is performed on a 2D 2^12 long array")
+    print("Description: Test if the the result found by applying our "+name2+" on a signal resulting from")
+    print("the "+name1+" of a signal is equal to the original signal. We compare the results on different arrays")
+    print("of different sizes.")
+    print("Expected Output: Should print TRUE")
     print("Output:")
-    testVector_2D = np.random.rand(2 ** 12, 2 ** 12)
-    fft = FFT_CT2D(testVector_2D)
-    npfft = np.fft.fft2(testVector_2D)
-    dft = DFT2D(testVector_2D)
-    # fftbase= FFT_CT2D_base(testVector_2D,-1)
-    print("Is FFT_CT2D equal to numpy's 2D FFT?")
-    print(np.allclose(fft, npfft))
+    # Initialize numpy array to keep track of the results of the comparisons.
+    comparisons = np.array([], bool)
 
-    print("Is FFT_CT2D equal to DFT2D?")
-    print(np.allclose(fft, dft))
+    # For multiple arrays of different length (all power of 2)
+    for N in (2 ** p for p in range(1, 13)):
+        if name1 == "FFT" or name1 == "FFT_CT" or name1 == "iFFT":
+            signal = np.random.rand(N)  # random signal of 1 dimension
+        else:
+            signal = np.random.rand(N)  # random signal of 2 dimension
 
-    # print("Is FFT_CT2D_base equal to numpy's 2D FFT?")
-    # print(np.allclose(fftbase, npfft))
-
-    # print("Is FFT-CT2D_base equal to FFT_2D?")
-    # print(np.allclose(fftbase,fft))
-    # print(np.allclose(iFFT_CT2D(FFT_CT2D(testVector_2D)), testVector_2D))
-
-    print("__________________________")
+        np.append(comparisons, np.allclose(signal, function2(function1(signal))))  # Compare fft and numpy fft
+    # Print results
+    print("Is "+name2+"("+name1+"(signal) equal to the original signal ?")
+    print(comparisons.all())
 
 
-def fifth2():
-    print("\nFIFTH TEST")
-    print("__________________________")
-    print(
-        "Description: Should print TRUE if the the result found by our FFT is the same as the one computed using our DFT, else it prints FALSE")
-    print("The test is performed on a 2D 2^12 long array")
-    print("Output:")
-    testVector_2D = np.random.rand(2 ** 12, 2 ** 12)
-    ifft = iFFT_CT2D(testVector_2D)
-    inpfft = np.fft.ifft2(testVector_2D)
-    idft = iDFT2D(testVector_2D)
-    # ifftbase= iFFT_CT2D_base(testVector_2D,-1)
-    print("Is iFFT_CT2D equal to numpy's 2D iFFT?")
-    print(np.allclose(ifft, inpfft))
+def eleventh():
+    # This test is the same as the tenth one, except that we check the correctness of our iFFT2 and FFT2D functions
+    print("\nELEVENTH TEST")
+    tenth(FFT2D, iFFT2D)
 
-    print("Is iFFT_CT2D equal to iDFT2D?")
-    print(np.allclose(ifft, idft))
 
-    # print("Is iFFT_CT2D_base equal to numpy's 2D iFFT?")
-    # print(np.allclose(ifftbase, inpfft))
+def twelfth():
+    # This test is the same as the third one, except that we check that our FFT2D function is correct, not the FFT_CT
+    print("\nTWELFTH TEST")
+    third(FFT2D, DFT2D, np.fft.fft2)
 
-    # print("Is iFFT-CT2D_base equal to iFFT_2D?")
-    # print(np.allclose(ifftbase,ifft))
-    # print(np.allclose(iFFT_CT2D(FFT_CT2D(testVector_2D)), testVector_2D))
+
+def thirteenth():
+    # This test is the same as the sixth one, except that we plot our FFT2D, DFT2D and FFT_CT2D functions
+    print("\nTHIRTEENTH TEST")
+    sixth(FFT_CT2D, DFT2D, FFT2D)
+
+
+def fourteenth():
+    # This test is the same as the third one, except that we check that our iFFT2D function is correct, not the FFT_CT
+    print("\nFOURTEENTH TEST")
+    third(iFFT2D, iDFT2D, np.fft.ifft2)
+
+
+def fifteenth():
+    # This test is the same as the sixth one, except that we plot our iFFT2D, iDFT2D and iFFT_CT2D functions
+    print("\nFIFTEENTH TEST")
+    sixth(iFFT_CT2D, iDFT2D, iFFT2D)
 
 
 def seventh2():
     print("\nSEVENTH TEST")
     print("__________________________")
-    print(
-        "Description: Should print the time taken (in seconds) to compute the Discrete Fourier Transform using different algorithm "
-        "This test can take several minutes to finish even on HEDT")
+    print("Description: Should print the time taken (in seconds) to compute the Discrete Fourier Transform using ")
+    print("different algorithm This test can take several minutes to finish even on HEDT")
     print("Output:")
     averagefftct = 0
     averagefftbase = 0
@@ -790,9 +814,8 @@ def eighth2():
 def ninth2():
     print("\nNINTH TEST")
     print("__________________________")
-    print(
-        "Description: Should print the average time taken (in seconds) to compute the inverse Discrete Fourier Transform using different algorithm "
-        "This test can take several minutes to finish even on HEDT")
+    print("Description: Should print the average time taken (in seconds) to compute the inverse Discrete Fourier ")
+    print("Transform using different algorithm This test can take several minutes to finish even on HEDT")
     print("Output:")
     averagefftct = 0
     averagefftbase = 0
@@ -898,7 +921,7 @@ def ourgraphi2D():
 
 
 if __name__ == "__main__":
-    first()
+    # first()
 
     # second()
 
@@ -906,7 +929,7 @@ if __name__ == "__main__":
 
     # fourth()
 
-    # fifth()
+    fifth()
 
     # sixth()
 
@@ -916,7 +939,7 @@ if __name__ == "__main__":
 
     # ninth()
 
-    # tenth()
+    #tenth()
 
     # Create the graph
     # ourgraph()
