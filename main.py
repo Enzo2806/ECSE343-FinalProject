@@ -446,7 +446,7 @@ def second():
     print("__________________________")
 
 
-def third(function=FFT_CT()):
+def third(function=FFT_CT):
     print("\nTHIRD TEST")
     print("__________________________")
     print("Description: Tests if the result found by our FFT is the same as the one computed using our ")
@@ -475,7 +475,7 @@ def third(function=FFT_CT()):
     print(comp_npfft.all())
 
 
-def fourth(function=FFT_CT()):
+def fourth(function=FFT_CT):
     print("\nFOURTH TEST")
     print("__________________________")
     print("Description: This test benchmarks and compares our FFT_CT function with the naive DFT function.")
@@ -485,26 +485,29 @@ def fourth(function=FFT_CT()):
     print("depending on the size of the array")
     print("with the best base case to use.")
     print("Output:")
+
+    # Initialize dictionaries to keep track of which array length made the fft/dft took which time
     bench_CT_result = {}
     bench_oldDFT_result = {}
 
+    # Iterate through different array length, all of length of power of 2
     for N in (2 ** p for p in range(0, 13)):
-        signal = np.random.rand(N)
-        start_time = timeit.default_timer()
-        function(signal)
-        bench_CT_result[N] = timeit.default_timer() - start_time
+        signal = np.random.rand(N)      # generate random signal
+        start_time = timeit.default_timer()     # Start timer
+        function(signal)        # compute fft ( call the FFT_CT function, later tests will call a different function)
+        bench_CT_result[N] = timeit.default_timer() - start_time     # Stop timer
 
-        start_time = timeit.default_timer()
-        DFT(signal)
-        bench_oldDFT_result[N] = timeit.default_timer() - start_time
+        start_time = timeit.default_timer()     # Start timer
+        DFT(signal)         # compute dft
+        bench_oldDFT_result[N] = timeit.default_timer() - start_time       # Stop timer
 
     lists = sorted(bench_CT_result.items())  # sorted by key, return a list of tuples
     N, CT_time = zip(*lists)  # unpack a list of pairs into two tuples
-    plt.plot(N, CT_time, label="FFT")
+    plt.plot(N, CT_time, label="FFT")   # Plot the curve for the fft and add a label
 
     lists = sorted(bench_oldDFT_result.items())  # sorted by key, return a list of tuples
     N, oldDFT_time = zip(*lists)  # unpack a list of pairs into two tuples
-    plt.plot(N, oldDFT_time, label="DFT")
+    plt.plot(N, oldDFT_time, label="DFT")   # Plot the curve for the dft and add a label
     plt.title("Graph comparing the time efficiency of the DFT and FFT algorithm")
     plt.xlabel("Value of N (Size of the array)")
     plt.ylabel("Time taken (seconds)")
@@ -557,15 +560,16 @@ def fifth():
         results[base] = totalAverage_base
 
     print(results)
-    print("The base case with the best performance on average is:")
+    best = results.min()
+    print("The base case with the best performance on average is:"+str(2 ** best))
+    print("The rest of the program will now use the function called FFT() which uses this base case of"+str(2 ** best))
 
 
-
-def fourth():
+def sixth():
     print("\nFOURTH TEST")
     print("__________________________")
-    print("Description: Should print TRUE if the the result found by our FFT is the same as the one computed using our "
-        "DFT, else it prints FALSE")
+    print("Description: Should print TRUE if the the result found by our FFT is the same as the one computed using our")
+    print("DFT, else it prints FALSE")
     print("The test is performed on a 2D 2^12 long array")
     print("Output:")
     testVector_2D = np.random.rand(2 ** 12, 2 ** 12)
@@ -589,7 +593,7 @@ def fourth():
     print("__________________________")
 
 
-def fourth():
+def fourth2():
     print("\nFOURTH TEST")
     print("__________________________")
     print(
@@ -618,7 +622,7 @@ def fourth():
     print("__________________________")
 
 
-def fifth():
+def fifth2():
     print("\nFIFTH TEST")
     print("__________________________")
     print(
@@ -897,13 +901,11 @@ if __name__ == "__main__":
 
     # second()
 
-    third2()
-
     # fourth()
 
     # fifth()
 
-    # sixth()
+    sixth()
 
     # seventh()
 
@@ -919,51 +921,51 @@ if __name__ == "__main__":
     # ourgraphi2D()
 
     # Application
-    print("The application of the FFT algorithm we chose consists of compressing a given image to reduce its size.")
-    print("This is done by taking the fast fourier transform of an input image (in grayscale) and by removing "
-          "(set to 0) the lowest frequencies of that fft depending on a threshold we specify. We then use the inverse "
-          "fft algorithm we wrote to go generate the compressed image.")
-    print("We defined a function named \"compress\" that takes as argument an image and the percentage of frequencies "
-          "to keep in the fast fourier transform. For instance, compress(imageTest, 0.7) will remove 30% of all the "
-          "frequencies in the fourier domain (only the lowest ones).")
-
-    print("\nFIRST APPLICATION TEST")
-    print("__________________________")
-    print("Description: This first application test will compress a koala image multiple times.")
-    print("Expected Output: The output should be a matplotlib plot, showing the input image and all 5 resulting "
-          "compressed images with their respective new sizes.")
-    print("Output:")
-
-    # https://e2eml.school/convert_rgb_to_grayscale.html
-    image = np.asarray(Image.open('Koala.jpg'))  # Import the image
-    grayscale = np.dot(image[..., :3], [0.2989, 0.5870, 0.1140]) / 255  # Get the Grayscale version of the image
-    # Save the greyscale image to check its size and to make sure the compression is not impacted by the "imsave" method
-    plt.imsave('GreyKoala.jpg', grayscale)
-    size = os.path.getsize('GreyKoala.jpg') / 1000  # Get the size of the original image in kilobytes
-
-    cmap = plt.get_cmap('gray')
-    _, plots = plt.subplots(3, 2, figsize=(10, 8))
-    plt.setp(plots, xticks=[], yticks=[])
-    plots[0][0].set_title("Input image, size={}KB".format(size), size=10)
-    plots[0][0].imshow(grayscale, cmap, vmin=0, vmax=1)
-    compression_percentage = [0.7, 0.2, 0.1, 0.05, 0.002]
-
-    count1 = 1
-    count2 = 0
-
-    for j in compression_percentage:
-        compressed = compress(grayscale, j)
-
-        plt.imsave('compressed.jpg', compressed)  # Save the compressed image in the current package to get its size
-        size = os.path.getsize('compressed.jpg') / 1000  # Get the size of the compressed image in kilobytes
-        plots[count1][count2].set_title(
-            "Compression removed {}% of input image\nNew size={}KB".format(100 - 100 * j, size), size=10)
-        plots[count1][count2].imshow(compressed, cmap, vmin=0, vmax=1)
-        count1 += 1
-        if count1 == 3:
-            count1 = 0
-            count2 += 1
-    plt.show()
+    # print("The application of the FFT algorithm we chose consists of compressing a given image to reduce its size.")
+    # print("This is done by taking the fast fourier transform of an input image (in grayscale) and by removing "
+    #       "(set to 0) the lowest frequencies of that fft depending on a threshold we specify. We then use the inverse "
+    #       "fft algorithm we wrote to go generate the compressed image.")
+    # print("We defined a function named \"compress\" that takes as argument an image and the percentage of frequencies "
+    #       "to keep in the fast fourier transform. For instance, compress(imageTest, 0.7) will remove 30% of all the "
+    #       "frequencies in the fourier domain (only the lowest ones).")
+    #
+    # print("\nFIRST APPLICATION TEST")
+    # print("__________________________")
+    # print("Description: This first application test will compress a koala image multiple times.")
+    # print("Expected Output: The output should be a matplotlib plot, showing the input image and all 5 resulting "
+    #       "compressed images with their respective new sizes.")
+    # print("Output:")
+    #
+    # # https://e2eml.school/convert_rgb_to_grayscale.html
+    # image = np.asarray(Image.open('Koala.jpg'))  # Import the image
+    # grayscale = np.dot(image[..., :3], [0.2989, 0.5870, 0.1140]) / 255  # Get the Grayscale version of the image
+    # # Save the greyscale image to check its size and to make sure the compression is not impacted by the "imsave" method
+    # plt.imsave('GreyKoala.jpg', grayscale)
+    # size = os.path.getsize('GreyKoala.jpg') / 1000  # Get the size of the original image in kilobytes
+    #
+    # cmap = plt.get_cmap('gray')
+    # _, plots = plt.subplots(3, 2, figsize=(10, 8))
+    # plt.setp(plots, xticks=[], yticks=[])
+    # plots[0][0].set_title("Input image, size={}KB".format(size), size=10)
+    # plots[0][0].imshow(grayscale, cmap, vmin=0, vmax=1)
+    # compression_percentage = [0.7, 0.2, 0.1, 0.05, 0.002]
+    #
+    # count1 = 1
+    # count2 = 0
+    #
+    # for j in compression_percentage:
+    #     compressed = compress(grayscale, j)
+    #
+    #     plt.imsave('compressed.jpg', compressed)  # Save the compressed image in the current package to get its size
+    #     size = os.path.getsize('compressed.jpg') / 1000  # Get the size of the compressed image in kilobytes
+    #     plots[count1][count2].set_title(
+    #         "Compression removed {}% of input image\nNew size={}KB".format(100 - 100 * j, size), size=10)
+    #     plots[count1][count2].imshow(compressed, cmap, vmin=0, vmax=1)
+    #     count1 += 1
+    #     if count1 == 3:
+    #         count1 = 0
+    #         count2 += 1
+    # plt.show()
 
     # print("\nSECOND APPLICATION TEST")
     # print("__________________________")
