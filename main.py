@@ -447,9 +447,11 @@ def second():
 
 
 def third(function=FFT_CT):
-    print("\nTHIRD TEST")
+    name = function.__name__
+    if name == "FFT_CT":
+        print("\nTHIRD TEST")
     print("__________________________")
-    print("Description: Tests if the result found by our FFT is the same as the one computed using our ")
+    print("Description: Tests if the result found by our "+name+" is the same as the one computed using our ")
     print("DFT subroutine and numpy's own FFT algorithm.")
     print("The test is performed on multiple arrays. We save the result of the comparison for each array size in a ")
     print("separate array and print true if this array only contains true.")
@@ -469,9 +471,9 @@ def third(function=FFT_CT):
         np.append(comp_dft, np.allclose(fft, dft))  # Compare fft and numpy fft
         np.append(comp_npfft, np.allclose(fft, npfft))  # Compare fft and dft
     # Print results
-    print("Is FFT_CT equal to DFT ?")
+    print("Is "+name+" equal to DFT ?")
     print(comp_dft.all())
-    print("Is FFT_CT equal to numpy's FFT?")
+    print("Is "+name+" equal to numpy's FFT?")
     print(comp_npfft.all())
 
 
@@ -616,6 +618,11 @@ def sixth():
     plt.show()
 
 
+def seventh():
+    print("\nSEVENTH TEST")
+    third(FFT)
+
+
 def sixth2():
     print("\nFOURTH TEST")
     print("__________________________")
@@ -699,7 +706,7 @@ def fifth2():
     # print(np.allclose(iFFT_CT2D(FFT_CT2D(testVector_2D)), testVector_2D))
 
 
-def seventh():
+def seventh2():
     print("\nSEVENTH TEST")
     print("__________________________")
     print(
@@ -748,7 +755,7 @@ def seventh():
     print("__________________________")
 
 
-def eighth():
+def eighth2():
     print("\nEIGHTH TEST")
     print("__________________________")
     print(
@@ -838,54 +845,6 @@ def ninth():
     print("__________________________")
 
 
-def tenth():
-    print("\nTENTH TEST")
-    print("__________________________")
-    print(
-        "Description: Should print the average time taken (in seconds) to compute the inverse 2D Discrete Fourier Transform using different algorithm ")
-    print("Output:")
-    averagefftct = 0
-    averagefftbase = 0
-    averagefftnp = 0
-    averageDFT = 0
-    for n in range(30):
-        signal = np.random.rand(2 ** 12, 2 ** 12)
-
-        start_time = timeit.default_timer()
-        iFFT_CT2D(signal)
-        # print("Time taken by FFT_CT:")
-        # print(timeit.default_timer() - start_time)
-        averagefftct = averagefftct + (timeit.default_timer() - start_time)
-
-        start_time = timeit.default_timer()
-        np.fft.ifft2(signal)
-        # print("Time taken by np.fft.fft:")
-        # print(timeit.default_timer() - start_time)
-        averagefftnp = averagefftnp + (timeit.default_timer() - start_time)
-
-        # start_time = timeit.default_timer()
-        # DFT2D(signal)
-        # print("Time taken by DFT")
-        # print(timeit.default_timer() - start_time)
-        # averageDFT = averageDFT + (timeit.default_timer() - start_time)
-
-        # start_time = timeit.default_timer()
-        # iFFT_CT2D_base(signal)
-        # print("Time taken by FFT_CT_BASE:")
-        # print(timeit.default_timer() - start_time)
-        # averagefftbase = averagefftbase + (timeit.default_timer() - start_time)
-    averagefftct = averagefftct / 30
-    averagefftbase = averagefftbase / 30
-    averagefftnp = averagefftnp / 30
-    averageDFT = averageDFT / 30
-    print("Over 30 iterations")
-    print("Average Time iFFT CT2D: " + str(averagefftct))
-    print("Average Time iFFT BASE 2D: " + str(averagefftbase))
-    print("Average Time iFFT NP 2D: " + str(averagefftnp))
-    print("Average Time iDFT 2D:" + str(averageDFT))
-    print("__________________________")
-
-
 def ourgraph2D():
     bench_2DFFT_result = {}
     bench_2DDFT_result = {}
@@ -952,11 +911,13 @@ if __name__ == "__main__":
 
     # second()
 
+    # third()
+
     # fourth()
 
-    #fifth()
+    # fifth()
 
-    sixth()
+    # sixth()
 
     # seventh()
 
