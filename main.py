@@ -78,15 +78,15 @@ def DFT2D(inSignal2D, s: int = -1):
     result = np.zeros(inSignal2D.shape, dtype=complex)
     result_col = np.zeros(inSignal2D.shape, dtype=complex)
 
-    i = 0   # counter variable
+    i = 0  # counter variable
     # Iterate through all the columns in the given signal (by taking its transpose)
     # Compute the DFT along all these columns and store it in a temporary array result_col
     for col in inSignal2D.T:
         result_col[i] = DFT(col, s)
         i += 1
-    result_col = result_col.T   # Transpose the array back to take compute the FFT along its rows
+    result_col = result_col.T  # Transpose the array back to take compute the FFT along its rows
 
-    i = 0   # counter variable
+    i = 0  # counter variable
 
     # Iterate through all the rows of the temporary array
     # Compute the DFT along all these rows and store it in a the array of the final result
@@ -126,7 +126,7 @@ def FFT_CT(inSignal, s: int = -1):
     Authors: Enzo Benoit-Jeannin and Thomas Dormart
     """
 
-    N = inSignal.shape[0]   # Get the length of the signal
+    N = inSignal.shape[0]  # Get the length of the signal
     # Check if the length is not 0 and is a power of two.
     if N == 0:
         raise ValueError("Invalid signal: length 0")
@@ -192,7 +192,7 @@ def FFT_CT_Base(inSignal, base, s: int = -1):
     Authors: Enzo Benoit-Jeannin and Thomas Dormart
     """
 
-    N = inSignal.shape[0]   # Get the length of the signal
+    N = inSignal.shape[0]  # Get the length of the signal
     # Check if the length is not 0 and is a power of two.
     if N == 0:
         raise ValueError("Invalid signal: length 0")
@@ -347,46 +347,76 @@ def iFFT2D(inSignal2D):
     return 1 / N ** 2 * FFT2D(inSignal2D, 1)
 
 
-def compress(Image, p):
+def compress(Img, p):
     """
-    Function to compress an image. It first uses our fft subroutine to get the fourier transform of the image.
-    Then, we set to 0 the lowest frequencies in the fourier domain of the image depending on the given argument p. We
-    then use the inverse FFT subroutine we implemented to obtain the final compressed image.
-    :param Image: 2D numpy array representing an image
+    Function to compress an image. It first uses our FFT2D subroutine to get the fourier transform of the image.
+    Then, we set to 0 the lowest fourier coefficients in the fourier domain of the image depending on the given
+    argument p. We then use the inverse FFT2D subroutine we implemented to obtain the final compressed image.
+    :param Img: 2D numpy array representing an image
     :param p: percentage of compression
     :return: the compressed image in the form of a 2D numpy array
 
     Example
     _______
-    If p is 0.5, we
+    If p is 0.5, we will only keep 50% of the fourier coefficients by removing the smallest 50% other coefficients in
+    the fourier domain.
     """
 
-    fft = FFT2D(Image)  # Get the fft of the image
+    fft = FFT2D(Img)  # Get the fft of the image
 
-    fft_sorted = np.sort(np.abs(fft.reshape(-1)))   # Sort the frequencies of the obtained fft (in absolute value)
+    # Sort the coefficients of the obtained fft (in absolute value) and reshape the 2D array to a 1D array
+    fft_sorted = np.sort(np.abs(fft.reshape(-1)))
 
-    thresh = fft_sorted[int(np.floor((1 - p) * len(fft_sorted)))]   # Determine the
+    # Get the index of the minimum value. We find the index of the element located at p*100% of the total length of the
+    # array storing the fourier transform.
+    index_min_value = int(np.floor((1 - p) * len(fft_sorted)))
 
-    ind = np.abs(fft) > thresh
+    # Determine the minimum value of the coefficient we will keep in the fourier transform.
+    min_value = fft_sorted[index_min_value]
 
-    return iFFT2D(fft * ind).real
+    # Set to 0 all the values lower than the found minimum coefficient value.
+    fft[np.abs(fft) < min_value] = 0
+    # Apply the inverse FFT to get back to the new compressed image and return it.
+    return iFFT2D(fft).real
 
 
-def compress_DFT(Image, p):
+def compress_DFT(Img, p):
     """
-    :param Image: 2D array representing an image
+    THis function is the same as the "compress()" function but it uses the DFT subroutines for comparison.
+    It therefore first uses our DFT2D subroutine to get the fourier transform of the image.
+    Then, we set to 0 the lowest fourier coefficients in the fourier domain of the image depending on the given
+    argument p. We then use the inverse DFT2D subroutine we implemented to obtain the final compressed image.
+    :param Img: 2D numpy array representing an image
     :param p: percentage of compression
-    :return: the compressed image
+    :return: the compressed image in the form of a 2D numpy array
+
+    Example
+    _______
+    If p is 0.5, we will only keep 50% of the fourier coefficients by removing the smallest 50% other coefficients in
+    the fourier domain.
     """
-    dft = DFT2D(Image)
-    dft_sorted = np.sort(np.abs(dft.reshape(-1)))
-    thresh = dft_sorted[int(np.floor((1 - p) * len(dft_sorted)))]
-    ind = np.abs(dft) > thresh
-    return iDFT2D(dft * ind).real
+
+    fft = DFT2D(Img)  # Get the fft of the image
+
+    # Sort the coefficients of the obtained fft (in absolute value) and reshape the 2D array to a 1D array
+    fft_sorted = np.sort(np.abs(fft.reshape(-1)))
+
+    # Get the index of the minimum value. We find the index of the element located at p*100% of the total length of the
+    # array storing the fourier transform.
+    index_min_value = int(np.floor((1 - p) * len(fft_sorted)))
+
+    # Determine the minimum value of the coefficient we will keep in the fourier transform.
+    min_value = fft_sorted[index_min_value]
+
+    # Set to 0 all the values lower than the found minimum coefficient value.
+    fft[np.abs(fft) < min_value] = 0
+    # Apply the inverse FFT to get back to the new compressed image and return it.
+    return iDFT2D(fft).real
 
 
 def first():
     print("Validation Tests")
+
     # Test the FFT_CT function
     print("\nFIRST TEST")
     print("__________________________")
@@ -394,52 +424,147 @@ def first():
     print("Expected Output: Should throw the following Exception: \"Invalid signal: length 0\" ")
     print("Output:")
     try:
-        testVector = np.random.rand(0)
+        testVector = np.random.rand(0)  # Array of size 0
         FFT_CT(testVector)
-    except Exception as e:
+    except Exception as e:  # Catch the error
         print(e)
     print("__________________________")
 
 
 def second():
+    # Test the FFT_CT function
     print("\nSECOND TEST")
     print("__________________________")
-    print(
-        "Description: Should print TRUE if the the result found by our FFT is the same as the one computed using our "
-        "DFT and numpy's FFT, else it prints FALSE")
-    print("The test is performed on a 1D 2^14 long array")
-    print("Expected Output: Should return true for both methods")
+    print("Description: Calls the FFT_CT function with a signal of a length different from a power of 2.")
+    print("Expected Output: Should throw the following Exception: \"Invalid signal: length is not a power of 2\" ")
     print("Output:")
-
-    N = 2 ** 14
-    signal = np.random.rand(N)
-    fft = FFT_CT(signal)
-    dft = DFT(signal)
-    npfft = np.fft.fft(signal)
-    fftbase = FFT(signal, 2 ** 5, -1)
-
-    print("Is FFT_CT equal to DFT ?")
-    print(np.allclose(fft, dft))
-
-    print("Is FFT_CT equal to numpy's FFT?")
-    print(np.allclose(fft, npfft))
-
-    print("Is FFT_CT_base equal to FFT_CT?")
-    print(np.allclose(fftbase, fft))
-
-    print("Is FFT_CT_base equal to DFT?")
-    print(np.allclose(fftbase, dft))
-
-    print("Is FFT_CT_base equal to numpy's FFT?")
-    print(np.allclose(fftbase, npfft))
+    try:
+        testVector = np.random.rand(3)  # Array of size different form a power of 2
+        FFT_CT(testVector)
+    except Exception as e:  # Catch the error
+        print(e)
     print("__________________________")
 
 
-def third():
+def third(function=FFT_CT()):
     print("\nTHIRD TEST")
     print("__________________________")
-    print(
-        "Description: Should print TRUE if the the result found by our FFT is the same as the one computed using our "
+    print("Description: Tests if the result found by our FFT is the same as the one computed using our ")
+    print("DFT subroutine and numpy's own FFT algorithm.")
+    print("The test is performed on multiple arrays. We save the result of the comparison for each array size in a ")
+    print("separate array and print true if this array only contains true.")
+    print("Expected Output: Should return true for both methods.")
+    print("Output:")
+
+    # Initialize numpy arrays to keep track of the results of the comparisons.
+    comp_dft = np.array([], bool)
+    comp_npfft = np.array([], bool)
+
+    # For multiple arrays of different length (all power of 2)
+    for N in (2 ** p for p in range(1, 13)):
+        signal = np.random.rand(N)  # random signal
+        fft = function(signal)    # Get fft
+        dft = DFT(signal)       # Get dft
+        npfft = np.fft.fft(signal)  # Get numpy fft
+        np.append(comp_dft, np.allclose(fft, dft))  # Compare fft and numpy fft
+        np.append(comp_npfft, np.allclose(fft, npfft))  # Compare fft and dft
+    # Print results
+    print("Is FFT_CT equal to DFT ?")
+    print(comp_dft.all())
+    print("Is FFT_CT equal to numpy's FFT?")
+    print(comp_npfft.all())
+
+
+def fourth(function=FFT_CT()):
+    print("\nFOURTH TEST")
+    print("__________________________")
+    print("Description: This test benchmarks and compares our FFT_CT function with the naive DFT function.")
+    print("The test is performed only once on multiple arrays of different length. We save the time taken per ")
+    print("algorithm and per array length in a python dictionnary. We then generate a plot from it.")
+    print("Expected Output: Should plot two curves for each algorithm: FFT and DFT. It will show the time taken")
+    print("depending on the size of the array")
+    print("with the best base case to use.")
+    print("Output:")
+    bench_CT_result = {}
+    bench_oldDFT_result = {}
+
+    for N in (2 ** p for p in range(0, 13)):
+        signal = np.random.rand(N)
+        start_time = timeit.default_timer()
+        function(signal)
+        bench_CT_result[N] = timeit.default_timer() - start_time
+
+        start_time = timeit.default_timer()
+        DFT(signal)
+        bench_oldDFT_result[N] = timeit.default_timer() - start_time
+
+    lists = sorted(bench_CT_result.items())  # sorted by key, return a list of tuples
+    N, CT_time = zip(*lists)  # unpack a list of pairs into two tuples
+    plt.plot(N, CT_time, label="FFT")
+
+    lists = sorted(bench_oldDFT_result.items())  # sorted by key, return a list of tuples
+    N, oldDFT_time = zip(*lists)  # unpack a list of pairs into two tuples
+    plt.plot(N, oldDFT_time, label="DFT")
+    plt.title("Graph comparing the time efficiency of the DFT and FFT algorithm")
+    plt.xlabel("Value of N (Size of the array)")
+    plt.ylabel("Time taken (seconds)")
+    plt.legend()
+    plt.show()
+
+
+def fifth():
+    print("\nFIFTH TEST")
+    print("__________________________")
+    print("Description: This test should determine which base case is the best for our recursion to compute the fft.")
+    print("The test is performed on 1D array's ranging from 2^1 to 2^10, the average is made on testing each ")
+    print("base case thirty times. From our graph in test 4, we expect the best base case to be between 2^0 and 2^9")
+    print("so we will try base cases in this range. This test might take several minutes to finish even on HEDT")
+    print("Expected Output: Should return the average time to compute FFT with each base case ")
+    print("with the best base case to use.")
+    print("Output:")
+
+    results = np.zeros(10)
+
+    # For all possible base cases (iterate through the possible power of 2)
+    # We know thanks to the previous test that the fft algorithm is always faster than the dft for any signal of length
+    # 2^9 or more so we iterate through base cases below 2^9.
+    for base in range(9):
+        # For each array of different length, we record the time taken to generate its fft 30 times and get an average
+        # value for that particular array length and base case.
+        # We add the average time to a variable that keeps track of the total time for this specific base case.
+        # We then change array length and start again with the same base case and add it to the same variable.
+        # We do this for all base cases and obtain an array storing accumulated average times for each base case.
+
+        totalAverage_base = 0  # keeps track of how each base case performs.
+
+        for length in range(10):  # power of 2 used for the length of the signal
+            signal = np.random.rand(2 ** length)    # generate random signal of length of power of 2
+            i = 0   # counting variable
+            average = 0     # keeps track of the average time taken to compute the fft given an array and a base case
+
+            # Iterates thirty times to to get an average value of the time to
+            # compute the fft of a same array with a same base case.
+            while i < 30:
+                start_time = timeit.default_timer()     # Start timer
+                FFT_CT_Base(signal, 2 ** base)          # Compute fft of the current array using the current base case
+                average = average + (timeit.default_timer() - start_time)   # End timer
+                i = i + 1
+
+            average = float(average / (i - 1))      # Take the average of all the time recorder in the previous loop
+
+            totalAverage_base = totalAverage_base + average     # Add this average time to
+
+        results[base] = totalAverage_base
+
+    print(results)
+    print("The base case with the best performance on average is:")
+
+
+
+def fourth():
+    print("\nFOURTH TEST")
+    print("__________________________")
+    print("Description: Should print TRUE if the the result found by our FFT is the same as the one computed using our "
         "DFT, else it prints FALSE")
     print("The test is performed on a 2D 2^12 long array")
     print("Output:")
@@ -517,37 +642,6 @@ def fifth():
     # print("Is iFFT-CT2D_base equal to iFFT_2D?")
     # print(np.allclose(ifftbase,ifft))
     # print(np.allclose(iFFT_CT2D(FFT_CT2D(testVector_2D)), testVector_2D))
-
-
-def sixth():
-    print("\nSIXTH TEST")
-    print("__________________________")
-    print("Description: This test should determine which base case is the best for our recursion")
-    print(
-        "The test is performed on 1D array's ranging from 2^1 to 2^10, the average is made on testing each base case a thousand time."
-        "From our graph, we expect the best base case to be between 2^0 and 2^9, so we will try base cases in this range"
-        "This test might take several minutes to finish even on HEDT")
-    print("Expected Output: Should return the average time to compute FFT with each base case")
-    print("Output:")
-    averagetimes = np.zeros(10)
-    for base in range(9):
-        length = base
-        totalaverage = 0
-        while length <= 10:  # power of 2 used for the length of the signal
-            signal = signal = np.random.rand(2 ** length)
-            i = 0
-            average = 0
-            while i <= 30:  # Iterates a thousand time over an array of the same base case and the length of array
-                start_time = timeit.default_timer()
-                FFT_CT_Base(signal, 2 ** base)
-                average = average + (timeit.default_timer() - start_time)
-                i = i + 1
-            average = float(average / (i - 1))
-            totalaverage = totalaverage + average
-            # print("For a signal a signal of length 2^" + str(length) + " and a base case of 2^" + str(base) + " the average time to do the computation is " + str(average) + " seconds")
-            length = length + 1
-        averagetimes[base] = totalaverage
-    print(averagetimes)
 
 
 def seventh():
@@ -737,35 +831,6 @@ def tenth():
     print("__________________________")
 
 
-def ourgraph():
-    bench_CT_result = {}
-    bench_oldDFT_result = {}
-
-    for N in (2 ** p for p in range(0, 13)):
-        signal = np.random.rand(N)
-        start_time = timeit.default_timer()
-        fft = FFT_CT(signal)
-        bench_CT_result[N] = timeit.default_timer() - start_time
-
-        start_time = timeit.default_timer()
-        dft = DFT(signal)
-        bench_oldDFT_result[N] = timeit.default_timer() - start_time
-        print(np.allclose(fft, np.fft.fft(signal)))
-
-    lists = sorted(bench_CT_result.items())  # sorted by key, return a list of tuples
-    N, CT_time = zip(*lists)  # unpack a list of pairs into two tuples
-    plt.plot(N, CT_time, label="FFT")
-
-    lists = sorted(bench_oldDFT_result.items())  # sorted by key, return a list of tuples
-    N, oldDFT_time = zip(*lists)  # unpack a list of pairs into two tuples
-    plt.plot(N, oldDFT_time, label="DFT")
-    plt.title("Graph comparing the time efficiency of the DFT and FFT algorithm")
-    plt.xlabel("Value of N (Size of the array)")
-    plt.ylabel("Time taken (seconds)")
-    plt.legend()
-    plt.show()
-
-
 def ourgraph2D():
     bench_2DFFT_result = {}
     bench_2DDFT_result = {}
@@ -828,11 +893,11 @@ def ourgraphi2D():
 
 
 if __name__ == "__main__":
-    # first()
+    first()
 
-    #second()
+    # second()
 
-    # third()
+    third2()
 
     # fourth()
 
@@ -854,57 +919,21 @@ if __name__ == "__main__":
     # ourgraphi2D()
 
     # Application
-    # print("The application of the FFT algorithm we chose consists of compressing a given image to reduce its size.")
-    # print("This is done by taking the fast fourier transform of an input image (in grayscale) and by removing "
-    #       "(set to 0) the lowest frequencies of that fft depending on a threshold we specify. We then use the inverse "
-    #       "fft algorithm we wrote to go generate the compressed image.")
-    # print("We defined a function named \"compress\" that takes as argument an image and the percentage of frequencies "
-    #       "to keep in the fast fourier transform. For instance, compress(imageTest, 0.7) will remove 30% of all the "
-    #       "frequencies in the fourier domain (only the lowest ones).")
-    #
-    # print("\nFIRST APPLICATION TEST")
-    # print("__________________________")
-    # print("Description: This first application test will compress a koala image multiple times.")
-    # print("Expected Output: The output should be a matplotlib plot, showing the input image and all 5 resulting "
-    #       "compressed images with their respective new sizes.")
-    # print("Output:")
-    #
-    # # https://e2eml.school/convert_rgb_to_grayscale.html
-    # image = np.asarray(Image.open('Koala.jpg'))  # Import the image
-    # grayscale = np.dot(image[..., :3], [0.2989, 0.5870, 0.1140]) / 255  # Get the Grayscale version of the image
-    # # Save the greyscale image to check its size and to make sure the compression is not impacted by the "imsave" method
-    # plt.imsave('GreyKoala.jpg', grayscale)
-    # size = os.path.getsize('GreyKoala.jpg') / 1000  # Get the size of the original image in kilobytes
-    #
-    # cmap = plt.get_cmap('gray')
-    # _, plots = plt.subplots(3, 2, figsize=(10, 8))
-    # plt.setp(plots, xticks=[], yticks=[])
-    # plots[0][0].set_title("Input image, size={}KB".format(size), size=10)
-    # plots[0][0].imshow(grayscale, cmap, vmin=0, vmax=1)
-    # compression_percentage = [0.7, 0.2, 0.1, 0.05, 0.002]
-    #
-    # count1 = 1
-    # count2 = 0
-    #
-    # for j in compression_percentage:
-    #     compressed = compress(grayscale, j)
-    #
-    #     plt.imsave('compressed.jpg', compressed)  # Save the compressed image in the current package to get its size
-    #     size = os.path.getsize('compressed.jpg') / 1000  # Get the size of the compressed image in kilobytes
-    #     plots[count1][count2].set_title("Compression removed {}% of input image\nNew size={}KB".format(100-100*j, size), size=10)
-    #     plots[count1][count2].imshow(compressed, cmap,  vmin=0, vmax=1)
-    #     count1 += 1
-    #     if count1 == 3:
-    #         count1 = 0
-    #         count2 += 1
-    # plt.show()
+    print("The application of the FFT algorithm we chose consists of compressing a given image to reduce its size.")
+    print("This is done by taking the fast fourier transform of an input image (in grayscale) and by removing "
+          "(set to 0) the lowest frequencies of that fft depending on a threshold we specify. We then use the inverse "
+          "fft algorithm we wrote to go generate the compressed image.")
+    print("We defined a function named \"compress\" that takes as argument an image and the percentage of frequencies "
+          "to keep in the fast fourier transform. For instance, compress(imageTest, 0.7) will remove 30% of all the "
+          "frequencies in the fourier domain (only the lowest ones).")
 
-    print("\nSECOND APPLICATION TEST")
+    print("\nFIRST APPLICATION TEST")
     print("__________________________")
-    print("Description: This second application tests the compress_DFT() method"
-          "of the same koala image.")
-    print("Expected Output:")
-    print("Output: ")
+    print("Description: This first application test will compress a koala image multiple times.")
+    print("Expected Output: The output should be a matplotlib plot, showing the input image and all 5 resulting "
+          "compressed images with their respective new sizes.")
+    print("Output:")
+
     # https://e2eml.school/convert_rgb_to_grayscale.html
     image = np.asarray(Image.open('Koala.jpg'))  # Import the image
     grayscale = np.dot(image[..., :3], [0.2989, 0.5870, 0.1140]) / 255  # Get the Grayscale version of the image
@@ -923,7 +952,8 @@ if __name__ == "__main__":
     count2 = 0
 
     for j in compression_percentage:
-        compressed = compress_DFT(grayscale, j)
+        compressed = compress(grayscale, j)
+
         plt.imsave('compressed.jpg', compressed)  # Save the compressed image in the current package to get its size
         size = os.path.getsize('compressed.jpg') / 1000  # Get the size of the compressed image in kilobytes
         plots[count1][count2].set_title(
@@ -934,6 +964,42 @@ if __name__ == "__main__":
             count1 = 0
             count2 += 1
     plt.show()
+
+    # print("\nSECOND APPLICATION TEST")
+    # print("__________________________")
+    # print("Description: This second application tests the compress_DFT() method"
+    #       "of the same koala image.")
+    # print("Expected Output:")
+    # print("Output: ")
+    # # https://e2eml.school/convert_rgb_to_grayscale.html
+    # image = np.asarray(Image.open('Koala.jpg'))  # Import the image
+    # grayscale = np.dot(image[..., :3], [0.2989, 0.5870, 0.1140]) / 255  # Get the Grayscale version of the image
+    # # Save the greyscale image to check its size and to make sure the compression is not impacted by the "imsave" method
+    # plt.imsave('GreyKoala.jpg', grayscale)
+    # size = os.path.getsize('GreyKoala.jpg') / 1000  # Get the size of the original image in kilobytes
+    #
+    # cmap = plt.get_cmap('gray')
+    # _, plots = plt.subplots(3, 2, figsize=(10, 8))
+    # plt.setp(plots, xticks=[], yticks=[])
+    # plots[0][0].set_title("Input image, size={}KB".format(size), size=10)
+    # plots[0][0].imshow(grayscale, cmap, vmin=0, vmax=1)
+    # compression_percentage = [0.7, 0.2, 0.1, 0.05, 0.002]
+    #
+    # count1 = 1
+    # count2 = 0
+    #
+    # for j in compression_percentage:
+    #     compressed = compress_DFT(grayscale, j)
+    #     plt.imsave('compressed.jpg', compressed)  # Save the compressed image in the current package to get its size
+    #     size = os.path.getsize('compressed.jpg') / 1000  # Get the size of the compressed image in kilobytes
+    #     plots[count1][count2].set_title(
+    #         "Compression removed {}% of input image\nNew size={}KB".format(100 - 100 * j, size), size=10)
+    #     plots[count1][count2].imshow(compressed, cmap, vmin=0, vmax=1)
+    #     count1 += 1
+    #     if count1 == 3:
+    #         count1 = 0
+    #         count2 += 1
+    # plt.show()
     #
     # print("\nTHIRD APPLICATION TEST")
     # print("__________________________")
@@ -1066,3 +1132,10 @@ if __name__ == "__main__":
     # plt.ylabel("Time taken (seconds)")
     # plt.legend()
     # plt.show()
+
+    # # 3D Tests
+    # N = 2 ** 8
+    # signal = np.random.rand(N, N, 3)
+    # print(signal)
+    # fft = FFT3D(signal)
+    # print(np.allclose(fft, np.fft.fftn(signal)))
