@@ -144,27 +144,11 @@ def FFT_CT(inSignal, s: int = -1):
         inSignal_e_hat = FFT_CT(inSignal[::2], s)
         inSignal_o_hat = FFT_CT(inSignal[1::2], s)
 
-        # Here, we implemented our FFT differently from the instruction of the project.
-        # Instead of forming the diag(e_a_hat) and diag(e_b_hat) diagnoal matrices, we generate a 1D vector containing
-        # all the w values ranging from w^0 to w^n with w = exp(2j*pi / N). This allowed for better performance.
+        # Here, we implemented our FFT using the first equation given in the  instruction of the project.
+        # Instead of forming the diag(e_a_hat) and diag(e_b_hat) diagonal matrices and use the matrix form of the
+        # equation given in the instructions, we generate a 1D vector containing all the w values ranging from w^0 to
+        # w^n with w = exp(2j*pi / N). The recursion remains the same, but instead of
         w = np.exp(s * 2j * np.pi * np.arange(N) / N)
-
-        # print("W is:")
-        # print(w)
-        #
-        # print("w[:int(N / 2)] is")
-        # print(w[:int(N / 2)])
-        #
-        # print("w[int(N / 2):] is")
-        # print(w[int(N / 2):])
-        #
-        # w2 = np.exp(s * 2j * np.pi / N))
-        # diag_e_a = np.full(int(N / 2), w2) ** np.arange(N / 2)
-        #
-        # print("diag_e_a is")
-        # print(diag_e_a)
-        # print("-diag_e_a is")
-        # print(-diag_e_a)
 
         # Top N/2 values of the resulting numpy array is calculated using the equation given in the project report.
         result[0: int(N / 2)] = inSignal_e_hat + w[:int(N / 2)] * inSignal_o_hat
@@ -396,22 +380,22 @@ def compress_DFT(Img, p):
     the fourier domain.
     """
 
-    fft = DFT2D(Img)  # Get the fft of the image
+    dft = DFT2D(Img)  # Get the dft of the image
 
     # Sort the coefficients of the obtained fft (in absolute value) and reshape the 2D array to a 1D array
-    fft_sorted = np.sort(np.abs(fft.reshape(-1)))
+    dft_sorted = np.sort(np.abs(dft.reshape(-1)))
 
     # Get the index of the minimum value. We find the index of the element located at p*100% of the total length of the
     # array storing the fourier transform.
-    index_min_value = int(np.floor((1 - p) * len(fft_sorted)))
+    index_min_value = int(np.floor((1 - p) * len(dft_sorted)))
 
     # Determine the minimum value of the coefficient we will keep in the fourier transform.
-    min_value = fft_sorted[index_min_value]
+    min_value = dft_sorted[index_min_value]
 
     # Set to 0 all the values lower than the found minimum coefficient value.
-    fft[np.abs(fft) < min_value] = 0
-    # Apply the inverse FFT to get back to the new compressed image and return it.
-    return iDFT2D(fft).real
+    dft[np.abs(dft) < min_value] = 0
+    # Apply the inverse DFT to get back to the new compressed image and return it.
+    return iDFT2D(dft).real
 
 
 def first():
@@ -1020,7 +1004,7 @@ if __name__ == "__main__":
 
     # app_first()
 
-    app_second()
+    # app_second()
 
     # app_third()
 
