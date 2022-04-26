@@ -145,10 +145,81 @@ def FFT_CT(inSignal, s: int = -1):
         inSignal_o_hat = FFT_CT(inSignal[1::2], s)
 
         # Here, we implemented our FFT differently from the instruction of the project.
-        # Instead of
+        # Instead of forming the diag(e_a_hat) and diag(e_b_hat) diagnoal matrices, we generate a 1D vector containing
+        # all the w values ranging from w^0 to w^n with w = exp(2j*pi / N). This allowed for better performance.
         w = np.exp(s * 2j * np.pi * np.arange(N) / N)
 
+        # print("W is:")
+        # print(w)
+        #
+        # print("w[:int(N / 2)] is")
+        # print(w[:int(N / 2)])
+        #
+        # print("w[int(N / 2):] is")
+        # print(w[int(N / 2):])
+        #
+        # w2 = np.exp(s * 2j * np.pi / N))
+        # diag_e_a = np.full(int(N / 2), w2) ** np.arange(N / 2)
+        #
+        # print("diag_e_a is")
+        # print(diag_e_a)
+        # print("-diag_e_a is")
+        # print(-diag_e_a)
+
+        # Top N/2 values of the resulting numpy array is calculated using the equation given in the project report.
         result[0: int(N / 2)] = inSignal_e_hat + w[:int(N / 2)] * inSignal_o_hat
+        # Bottom N/2 values of the resulting numpy array is calculated using the equation given in the project report.
+        result[int(N / 2): N] = inSignal_e_hat + w[int(N / 2):] * inSignal_o_hat
+
+        return result
+
+
+def FFT(inSignal, base, s: int = -1):
+    """
+    Function generating the FFT of the given signal using the Cooley-Tukey Algorithm.
+    This algorithm runs faster than the previously implemented DFT algorithm because it
+    separates the given signal in two even and odd parts. It then recursively calls itself until the base case is met.
+
+    This function is different from the FFT_CT() function because it accepts an extra argument specifying the
+    base case value from which we compute the fourier transform of the signal using the DFT algorithm instead of
+    splitting the signal in two again.
+
+    :param inSignal: 1D (sampled) input signal numpy array with a power of 2 length
+    :param base: Value of the base case form which we compute the fourier transform using the DFT algorithm
+    :param s: sign parameter with default value -1 for the FFT vs. iFFT setting
+    :return: returns the FFT of the input signal
+
+    Authors: Enzo Benoit-Jeannin and Thomas Dormart
+    """
+
+    N = inSignal.shape[0]   # Get the length of the signal
+    # Check if the length is not 0 and is a power of two.
+    if N == 0:
+        raise ValueError("Invalid signal: length 0")
+    # Check for the base case of length specified in the argument of the function before checking for the power of 2.
+    # If the length of the input signal is less than or equal to teh specified base value, we compute the DFT of the
+    # signal and return it.
+    elif N <= base:
+        return DFT(inSignal, s)
+    # If the length is not a power of two we throw an error.
+    elif N % 2 != 0:
+        raise ValueError("Invalid signal: length is not a power of 2")
+    else:
+        result = np.zeros(inSignal.shape, dtype=complex)
+        # Separate the signal in two signals.
+        # One containing the even indexed values and the other the odd indexed values.
+        # We modified these two lines from the FFT_CT() function to call FFT() function instead.
+        inSignal_e_hat = FFT(inSignal[::2], base, s)
+        inSignal_o_hat = FFT(inSignal[1::2], base, s)
+
+        # Here, we implemented our FFT differently from the instruction of the project.
+        # Instead of forming the diag(e_a_hat) and diag(e_b_hat) diagnoal matrices, we generate a 1D vector containing
+        # all the w values ranging from w^0 to w^n with w = exp(2j*pi / N). This allowed for better performance.
+        w = np.exp(s * 2j * np.pi * np.arange(N) / N)
+
+        # Top N/2 values of the resulting numpy array is calculated using the equation given in the project report.
+        result[0: int(N / 2)] = inSignal_e_hat + w[:int(N / 2)] * inSignal_o_hat
+        # Bottom N/2 values of the resulting numpy array is calculated using the equation given in the project report.
         result[int(N / 2): N] = inSignal_e_hat + w[int(N / 2):] * inSignal_o_hat
 
         return result
@@ -200,36 +271,6 @@ def iFFT_CT2D(inSignal2D):
     # and it's just the 2D FFT of the same signal, with a change of sign for s
     # multiplied by 1 / N^2
     return 1 / N ** 2 * FFT_CT2D(inSignal2D, 1)
-
-
-# @profile
-def FFT_CT_base(inSignal, k, s: int = -1):
-    """
-    Function generating the FFT of the given signal using the Cooley-Tukey ALgorithm
-    :param inSignal: 1D (sampled) input signal numpy array
-    :param s: sign parameter with default value -1 for the DFT vs. iDFT setting
-    :return: returns the DFT of the input signal
-    """
-    result = np.zeros(inSignal.shape, dtype=complex)
-
-    N = inSignal.shape[0]
-
-    if N == 0:
-        raise ValueError("Invalid signal: length 0")
-
-    if N <= k:
-        result = DFT2D(inSignal, s)
-    else:
-        w = np.exp(complex(0, s * 2 * np.pi / N))
-        diag_e_a = np.diag(np.full(int(N / 2), w) ** np.arange(N / 2))
-
-        inSignal_e_hat = FFT_CT_base(inSignal[::2], k, s)
-        inSignal_o_hat = FFT_CT_base(inSignal[1::2], k, s)
-
-        result[0: int(N / 2)] = inSignal_e_hat + diag_e_a @ inSignal_o_hat
-        result[int(N / 2): N] = inSignal_e_hat - diag_e_a @ inSignal_o_hat
-
-    return result
 
 
 def iFFT_CT_base(inSignal):
