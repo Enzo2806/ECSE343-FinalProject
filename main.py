@@ -475,40 +475,40 @@ def third(function=FFT_CT):
     print(comp_npfft.all())
 
 
-def fourth(function=FFT_CT):
+def fourth():
     print("\nFOURTH TEST")
     print("__________________________")
     print("Description: This test benchmarks and compares our FFT_CT function with the naive DFT function.")
     print("The test is performed only once on multiple arrays of different length. We save the time taken per ")
-    print("algorithm and per array length in a python dictionnary. We then generate a plot from it.")
+    print("algorithm and per array length in a python dictionary. We then generate a plot from it.")
     print("Expected Output: Should plot two curves for each algorithm: FFT and DFT. It will show the time taken")
-    print("depending on the size of the array")
-    print("with the best base case to use.")
+    print("depending on the size of the array.")
     print("Output:")
 
     # Initialize dictionaries to keep track of which array length made the fft/dft took which time
-    bench_CT_result = {}
-    bench_oldDFT_result = {}
+    bench_FFT_CT_result = {}
+    bench_DFT_result = {}
 
     # Iterate through different array length, all of length of power of 2
     for N in (2 ** p for p in range(0, 13)):
         signal = np.random.rand(N)      # generate random signal
         start_time = timeit.default_timer()     # Start timer
-        function(signal)        # compute fft ( call the FFT_CT function, later tests will call a different function)
-        bench_CT_result[N] = timeit.default_timer() - start_time     # Stop timer
+        FFT_CT(signal)        # compute fft ( call the FFT_CT function, later tests will call a different function)
+        bench_FFT_CT_result[N] = timeit.default_timer() - start_time     # Stop timer
 
         start_time = timeit.default_timer()     # Start timer
         DFT(signal)         # compute dft
-        bench_oldDFT_result[N] = timeit.default_timer() - start_time       # Stop timer
+        bench_DFT_result[N] = timeit.default_timer() - start_time       # Stop timer
 
-    lists = sorted(bench_CT_result.items())  # sorted by key, return a list of tuples
-    N, CT_time = zip(*lists)  # unpack a list of pairs into two tuples
-    plt.plot(N, CT_time, label="FFT")   # Plot the curve for the fft and add a label
+    lists = sorted(bench_FFT_CT_result.items())  # sorted by key, return a list of tuples
+    N, FFT_CT_time = zip(*lists)  # unpack a list of pairs into two tuples
+    plt.plot(N, FFT_CT_time, label="FFT")   # Plot the curve for the FFT_CT and add a label
 
-    lists = sorted(bench_oldDFT_result.items())  # sorted by key, return a list of tuples
-    N, oldDFT_time = zip(*lists)  # unpack a list of pairs into two tuples
-    plt.plot(N, oldDFT_time, label="DFT")   # Plot the curve for the dft and add a label
-    plt.title("Graph comparing the time efficiency of the DFT and FFT algorithm")
+    lists = sorted(bench_DFT_result.items())  # sorted by key, return a list of tuples
+    N, DFT_time = zip(*lists)  # unpack a list of pairs into two tuples
+    plt.plot(N, DFT_time, label="DFT")   # Plot the curve for the DFT and add a label
+
+    plt.title("Graph comparing the time efficiency of the DFT and FFT functions")
     plt.xlabel("Value of N (Size of the array)")
     plt.ylabel("Time taken (seconds)")
     plt.legend()
@@ -523,7 +523,7 @@ def fifth():
     print("base case thirty times. From our graph in test 4, we expect the best base case to be between 2^0 and 2^9")
     print("so we will try base cases in this range. This test might take several minutes to finish even on HEDT")
     print("Expected Output: Should return the average time to compute FFT with each base case ")
-    print("with the best base case to use.")
+    print("along with the best base case to use.")
     print("Output:")
 
     results = np.zeros(10)
@@ -531,7 +531,7 @@ def fifth():
     # For all possible base cases (iterate through the possible power of 2)
     # We know thanks to the previous test that the fft algorithm is always faster than the dft for any signal of length
     # 2^9 or more so we iterate through base cases below 2^9.
-    for base in range(9):
+    for base in range(10):
         # For each array of different length, we record the time taken to generate its fft 30 times and get an average
         # value for that particular array length and base case.
         # We add the average time to a variable that keeps track of the total time for this specific base case.
@@ -559,13 +559,64 @@ def fifth():
 
         results[base] = totalAverage_base
 
+    print("Resulting array is:")
     print(results)
-    best = results.min()
-    print("The base case with the best performance on average is:"+str(2 ** best))
-    print("The rest of the program will now use the function called FFT() which uses this base case of"+str(2 ** best))
+    best = np.argmin(results)   # Find index of minimum total average time to find best base case
+    print("The base case with the best performance on average is: " + str(2 ** best))
+    print("The rest of the program will now use the function called FFT() which uses this base case of "+str(2 ** best))
 
 
 def sixth():
+    print("\nSIXTH TEST")
+    print("__________________________")
+    print("Description: This test benchmarks/compares our FFT function with naive DFT function and FFT_CT function.")
+    print("The FFT function has base case 2^32 while FFT_CT has a base case of 1.")
+    print("The test is performed only once on multiple arrays of different length. We save the time taken per ")
+    print("algorithm and per array length in a python dictionary. We then generate a plot from it.")
+    print("Expected Output: Should plot three curves for each algorithm: FFT_CT, FFT and DFT. It will show the time")
+    print("taken depending on the size of array.")
+    print("Output:")
+
+    # Initialize dictionaries to keep track of which array length made the fft/dft took which time
+    bench_FFT_CT_result = {}
+    bench_DFT_result = {}
+    bench_FFT_result = {}
+
+    # Iterate through different array length, all of length of power of 2
+    for N in (2 ** p for p in range(0, 13)):
+        signal = np.random.rand(N)      # generate random signal
+        start_time = timeit.default_timer()     # Start timer
+        FFT_CT(signal)        # compute fft using FFT_CT function (base case of 1)
+        bench_FFT_CT_result[N] = timeit.default_timer() - start_time     # Stop timer
+
+        start_time = timeit.default_timer()     # Start timer
+        DFT(signal)         # compute dft
+        bench_DFT_result[N] = timeit.default_timer() - start_time       # Stop timer
+
+        start_time = timeit.default_timer()  # Start timer
+        FFT(signal)  # compute fft using FFT function (base case of 2^32)
+        bench_FFT_result[N] = timeit.default_timer() - start_time  # Stop timer
+
+    lists = sorted(bench_FFT_CT_result.items())  # sorted by key, return a list of tuples
+    N, FFT_CT_time = zip(*lists)  # unpack a list of pairs into two tuples
+    plt.plot(N, FFT_CT_time, label="FFT_CT")   # Plot the curve for the FFT_CT and add a label
+
+    lists = sorted(bench_DFT_result.items())  # sorted by key, return a list of tuples
+    N, DFT_time = zip(*lists)  # unpack a list of pairs into two tuples
+    plt.plot(N, DFT_time, label="DFT")   # Plot the curve for the DFT and add a label
+
+    lists = sorted(bench_FFT_result.items())  # sorted by key, return a list of tuples
+    N, FFT_time = zip(*lists)  # unpack a list of pairs into two tuples
+    plt.plot(N, FFT_time, label="FFT")  # Plot the curve for the FFT and add a label
+
+    plt.title("Graph comparing the time efficiency of the FFT, DFT and FFT_CT functions")
+    plt.xlabel("Value of N (Size of the array)")
+    plt.ylabel("Time taken (seconds)")
+    plt.legend()
+    plt.show()
+
+
+def sixth2():
     print("\nFOURTH TEST")
     print("__________________________")
     print("Description: Should print TRUE if the the result found by our FFT is the same as the one computed using our")
@@ -903,7 +954,7 @@ if __name__ == "__main__":
 
     # fourth()
 
-    # fifth()
+    #fifth()
 
     sixth()
 
