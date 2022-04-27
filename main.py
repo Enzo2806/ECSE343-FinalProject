@@ -797,7 +797,7 @@ def app_second(function=compress):
     plots[0][0].set_title("Input image, size={}KB".format(size), size=10)  # Plot the original image, display its size
     plots[0][0].imshow(grayscale, cmap, vmin=0, vmax=1)
 
-    compression_percentage = [0.05, 0.03, 0.02, 0.01, 0.002]  # Different percentage values to compress the image with.
+    compression_percentage = [0.5, 0.03, 0.02, 0.01, 0.002]  # Different percentage values to compress the image with.
 
     # Two variables to keep track of the next slot on the plot
     count1 = 1
