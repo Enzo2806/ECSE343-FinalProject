@@ -597,7 +597,7 @@ def sixth(function1=FFT_CT, function2=DFT, function3=FFT):
         print("\nSIXTH TEST")
     print("__________________________")
     print("Description: This test benchmarks/compares our "+name3+" function with the "+name2+" function and "+name1)
-    print("function. The " + name3 + " function has base case 2^32 while " + name1 + " has a base case of 1.")
+    print("function. The " + name3 + " function has base case 32 while " + name1 + " has a base case of 1.")
     print(
         "The test computes a same "+name1+"/"+name2+"/"+name3+" 30 times on each array and saves their corresponding")
     print("average times in a dictionary. We vary the length of the array we apply the algorithms to in order to")
@@ -614,7 +614,7 @@ def sixth(function1=FFT_CT, function2=DFT, function3=FFT):
     bench_FFT_result = {}
 
     # Iterate through different array length, all of length of power of 2
-    for N in (2 ** p for p in range(0, 11)):
+    for N in (2 ** p for p in range(0, 9)):
 
         if name1 == "FFT" or name1 == "FFT_CT" or name1 == "iFFT" or name1 == "iFFT_CT":
             signal = np.random.rand(N)  # generate random signal of 1 dimension
@@ -633,7 +633,7 @@ def sixth(function1=FFT_CT, function2=DFT, function3=FFT):
             average_DFT += timeit.default_timer() - start_time  # Stop timer
 
             start_time = timeit.default_timer()  # Start timer
-            function3(signal)  # compute fft using FFT function (base case of 2^32)
+            function3(signal)  # compute fft using FFT function (base case of 32)
             average_FFT += timeit.default_timer() - start_time  # Stop timer
 
         j = 30
@@ -973,4 +973,4 @@ if __name__ == "__main__":
 
     app_third()
 
-    #app_fourth()
+    app_fourth()
