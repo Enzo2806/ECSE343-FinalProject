@@ -833,18 +833,8 @@ def app_fourth():
     print("__________________________")
     print("Description: This third application test will compare the dft and fft algorithms in the compression"
           "of the same koala image.")
-    print("Expected Output: Benchmark of 4 compressions of 4 different images comparing the DFT and FFT algorithms.")
+    print("Expected Output: Benchmark of 3 compressions of 3 different images comparing the DFT and FFT algorithms.")
     print("Output: ")
-
-    # Import all four images following the same procedure as in the second test.
-    # Convert RGB Pictures to greyscale, save them to check their size (which changed since we converted them to
-    # greyscale).
-    image_VieuxLyon = np.asarray(Image.open('VieuxLyon.jpg'))  # Import the image
-    grayscale_VieuxLyon = np.dot(image_VieuxLyon[..., :3],
-                                 [0.2989, 0.5870, 0.1140]) / 255  # Get the Grayscale version of the image
-    # Save the greyscale image to check its size and to make sure the compression is not impacted by the "imsave" method
-    plt.imsave('VieuxLyon.jpg', grayscale_VieuxLyon, cmap=cmap)
-    size_VieuxLyon = os.path.getsize('VieuxLyon.jpg') / 1000  # Get the size of the original image in kilobytes
 
     image_MoulinRouge = np.asarray(Image.open('MoulinRouge.jpg'))  # Import the image
     grayscale_MoulinRouge = np.dot(image_MoulinRouge[..., :3],
@@ -869,34 +859,18 @@ def app_fourth():
 
     # Configure the plot by adding the input images in a first column.
     cmap = plt.get_cmap('gray')
-    _, plots = plt.subplots(4, 2, figsize=(10, 8))
+    _, plots = plt.subplots(3, 2, figsize=(10, 8))
     plt.setp(plots, xticks=[], yticks=[])
-    plots[0][0].set_title("Input 4096x4096 image, size={}KB".format(size_VieuxLyon), size=10)
-    plots[0][0].imshow(grayscale_VieuxLyon, cmap, vmin=0, vmax=1)
-    plots[1][0].set_title("Input 2048x2048 image, size={}KB".format(size_MoulinRouge), size=10)
-    plots[1][0].imshow(grayscale_MoulinRouge, cmap, vmin=0, vmax=1)
-    plots[2][0].set_title("Input 1024x1024 image, size={}KB".format(size_Koala), size=10)
-    plots[2][0].imshow(grayscale_Koala, cmap, vmin=0, vmax=1)
-    plots[3][0].set_title("Input 512x512 image, size={}KB".format(size_Fourviere), size=10)
-    plots[3][0].imshow(grayscale_Fourviere, cmap, vmin=0, vmax=1)
+    plots[0][0].set_title("Input 2048x2048 image, size={}KB".format(size_MoulinRouge), size=10)
+    plots[0][0].imshow(grayscale_MoulinRouge, cmap, vmin=0, vmax=1)
+    plots[1][0].set_title("Input 1024x1024 image, size={}KB".format(size_Koala), size=10)
+    plots[1][0].imshow(grayscale_Koala, cmap, vmin=0, vmax=1)
+    plots[2][0].set_title("Input 512x512 image, size={}KB".format(size_Fourviere), size=10)
+    plots[2][0].imshow(grayscale_Fourviere, cmap, vmin=0, vmax=1)
 
     # Variables to keep track of the time taken for each compression for both DFT and FFT algorithm
     bench_FFT_result = {}
     bench_DFT_result = {}
-
-    # 4096x4096 picture compression using FFT
-    start_time = timeit.default_timer()
-    compressed_VieuxLyon = compress(grayscale_VieuxLyon, 0.009)
-    bench_FFT_result[4096] = timeit.default_timer() - start_time
-    # Save the compressed image in the current package to get its size
-    plt.imsave('compressed_VieuxLyon.jpg', compressed_VieuxLyon, cmap=cmap)
-    plots[0][1].set_title("Compression removed 99,1% of input image", size=10)
-    plots[0][1].imshow(compressed_VieuxLyon, cmap, vmin=0, vmax=1)
-
-    # 4096x4096 picture compression using DFT
-    start_time = timeit.default_timer()
-    compress_DFT(grayscale_VieuxLyon, 0.009)
-    bench_DFT_result[4096] = timeit.default_timer() - start_time
 
     # 2048x2048 picture compression using FFT
     start_time = timeit.default_timer()
@@ -904,7 +878,7 @@ def app_fourth():
     bench_FFT_result[2048] = timeit.default_timer() - start_time
     # Save the compressed image in the current package to get its size
     plt.imsave('compressed_MoulinRouge.jpg', compressed_MoulinRouge, cmap=cmap)
-    plots[1][1].imshow(compressed_MoulinRouge, cmap, vmin=0, vmax=1)
+    plots[0][1].imshow(compressed_MoulinRouge, cmap, vmin=0, vmax=1)
 
     # 2048x2048 picture compression using DFT
     start_time = timeit.default_timer()
@@ -917,7 +891,7 @@ def app_fourth():
     bench_FFT_result[1024] = timeit.default_timer() - start_time
     # Save the compressed image in the current package to get its size
     plt.imsave('compressed_Koala.jpg', compressed_Koala, cmap=cmap)
-    plots[2][1].imshow(compressed_Koala, cmap, vmin=0, vmax=1)
+    plots[1][1].imshow(compressed_Koala, cmap, vmin=0, vmax=1)
 
     # 1024x1024 picture compression using DFT
     start_time = timeit.default_timer()
@@ -930,7 +904,7 @@ def app_fourth():
     bench_FFT_result[512] = timeit.default_timer() - start_time
     # Save the compressed image in the current package to get its size
     plt.imsave('compressed_Fourviere.jpg', compressed_Fourviere, cmap='gray')
-    plots[3][1].imshow(compressed_Fourviere, cmap, vmin=0, vmax=1)
+    plots[2][1].imshow(compressed_Fourviere, cmap, vmin=0, vmax=1)
 
     # 1024x1024 picture compression using DFT
     start_time = timeit.default_timer()
@@ -999,4 +973,4 @@ if __name__ == "__main__":
 
     # app_third()
 
-    # app_fourth()
+    app_fourth()
