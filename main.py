@@ -484,7 +484,7 @@ def fourth():
     bench_DFT_result = {}
 
     # Iterate through different array length, all of length of power of 2
-    for N in (2 ** p for p in range(0, 13)):
+    for N in (2 ** p for p in range(0, 10)):
         signal = np.random.rand(N)  # generate random signal
         average_FFT = 0
         average_DFT = 0
@@ -614,7 +614,7 @@ def sixth(function1=FFT_CT, function2=DFT, function3=FFT):
     bench_FFT_result = {}
 
     # Iterate through different array length, all of length of power of 2
-    for N in (2 ** p for p in range(0, 9)):
+    for N in (2 ** p for p in range(0, 10)):
 
         if name1 == "FFT" or name1 == "FFT_CT" or name1 == "iFFT" or name1 == "iFFT_CT":
             signal = np.random.rand(N)  # generate random signal of 1 dimension
@@ -693,7 +693,7 @@ def tenth(function1=FFT, function2=iFFT):
     comparisons = np.array([], bool)
 
     # For multiple arrays of different length (all power of 2)
-    for N in (2 ** p for p in range(1, 13)):
+    for N in (2 ** p for p in range(1, 10)):
         if name1 == "FFT" or name1 == "FFT_CT" or name1 == "iFFT" or name1 == "iFFT_CT":
             signal = np.random.rand(N)  # random signal of 1 dimension
         else:
@@ -928,35 +928,35 @@ def app_fourth():
 
 
 if __name__ == "__main__":
-    # first()
+    first()
     #
-    # second()
+    second()
     #
-    # third()
+    third()
     #
-    # fourth()
+    fourth()
     #
-    # fifth()
+    fifth()
     #
-    # sixth()
+    sixth()
     #
-    # seventh()
+    seventh()
     #
-    # eighth()
+    eighth()
     #
-    # ninth()
+    ninth()
     #
-    # tenth()
+    tenth()
     #
-    # eleventh()
+    eleventh()
     #
-    # twelfth()
+    twelfth()
     #
-    # thirteenth()
+    thirteenth()
     #
-    # fourteenth()
+    fourteenth()
     #
-    # fifteenth()
+    fifteenth()
 
     # Application
     print("The application of the FFT algorithm we chose consists of compressing a given image to reduce its size.")
@@ -967,9 +967,9 @@ if __name__ == "__main__":
           "to keep in the fast fourier transform. For instance, compress(imageTest, 0.7) will remove 30% of all the "
           "frequencies in the fourier domain (only the lowest ones).")
 
-    # app_first()
+    app_first()
 
-    # app_second()
+    app_second()
 
     app_third()
 
