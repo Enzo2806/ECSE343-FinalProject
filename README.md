@@ -24,7 +24,12 @@ recursively applies this decomposition until the problem is reduced to that of c
 the base case of the recursion simply computes a length-1 DFT2.
 
 The results of the benchmark comparison between the FFT and DFT and the application of the algorithm to a discrete signal processing problem are 
-available in the project report available [here](https://github.com/Enzo2806/ECSE343-FinalProject/wiki/Report).
+available in the project report in the next section.
+
+# Report 
+
+![Project Report](https://user-images.githubusercontent.com/72216366/213817380-5ab68f63-2765-4790-a1b1-1711c8c99e7e.png)
+
 
 # Description of the other data files present in the submission:
 
