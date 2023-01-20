@@ -16,8 +16,7 @@ N-periodic.
 
 The FFT algorithm exploits this periodicity to accelerate computation: the DFT of a length-𝑁 sampled signal 𝑓 can be computed from the DFT of two 
 length -(𝑁/2)signals 𝑓𝑒 and 𝑓𝑜 composed of the even and odd indexed values of 𝑓: 
-
-𝑓[𝑥]= ∑𝑘=0 𝑁/2−1 (𝑓𝑒[𝑘]exp(−2𝜋ı𝑘𝑥(𝑁/2))) + exp(−2𝜋ı𝑥𝑁)∑𝑘=0 𝑁/2−1 (𝑓𝑜[𝑘]exp(−2𝜋ı𝑘𝑥(𝑁/2)))
+<img width="602" alt="Screenshot 2023-01-20 at 5 36 00 PM" src="https://user-images.githubusercontent.com/72216366/213817499-44d9ff11-d7bc-438a-80d6-1ea52e81c235.png">
 
 While applying this decomposition once would accelerate the computation of a length-𝑁 DFT by roughly a factor of two, the Cooley-Tukey algorithm 
 recursively applies this decomposition until the problem is reduced to that of computing a very small DFT. In the limit, assuming that 𝑁 is a power-of-two,
