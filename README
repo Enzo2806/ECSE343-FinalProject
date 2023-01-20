@@ -1,3 +1,12 @@
+The goal of this project is to implement the Fast Fourier Transform (FFT), an alternative to the DFT algorithm that scales much more favourably for large N.
+We applied the FFT algorithm to the following discrete signal processing problem: image compression. We benchmarked its perfromance and compared it to the
+one of a naive DFT algorithm as a function of discrete signal size N.
+
+The Cooley-Tukey Fast Fourier Transform algorithm applies a hierarchical and recursive strategy to accelerate the computation of the DFT (and, so too, the iDFT). 
+Its running time is O(𝑁log𝑁). Since the FFT operates recursively over power-of-2 reductions in the input signal, the input signal must have a power-of-2 
+length. If not, in practice we can pad the input appropriately until it reaches the next power-of-2 length by using different tehcniques. For the purpose
+of this project we used images with power-of-2 heights and widths. 
+
 Description of the other data files present in the submission:
 
 - Koala.jpg, Fourviere.jpg, MoulinRouge.jpg and VieuxLyon.jpg are the only other files present in the folder of submission. 
