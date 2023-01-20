@@ -34,3 +34,8 @@ available in the project report in the next section.
 
 - Koala.jpg, Fourviere.jpg, MoulinRouge.jpg and VieuxLyon.jpg are the only other files present in the folder of submission. 
 They consists of pictures on which we tested our fft and dft algorithms in the main.py file.
+
+# Reference
+
+ECSE 343 — Numerical Methods in Engineering - Winter 2022 - McGill University — Prof. Derek Nowrouzezahrai
+http://www.cim.mcgill.ca/~derek/ecse343.html#collaboration&plagiarism
