@@ -12,6 +12,11 @@ the value of the complex exponential exp(−2𝜋ı𝑘𝑥/𝑁)in the DFT defi
 In other words, the sampled values 𝑓̂[⋅] of the DFT are 𝑁
 N-periodic.
 
+The FFT algorithm exploits this periodicity to accelerate computation: the DFT of a length-𝑁 sampled signal 𝑓 can be computed from the DFT of two 
+length -(𝑁/2)signals 𝑓𝑒 and 𝑓𝑜 composed of the even and odd indexed values of 𝑓: 
+
+$f(x) = \sum_{k=0}^(n/2-1)) f_e[k]exp())^2 $
+
 Description of the other data files present in the submission:
 
 - Koala.jpg, Fourviere.jpg, MoulinRouge.jpg and VieuxLyon.jpg are the only other files present in the folder of submission. 
